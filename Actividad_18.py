@@ -1,3 +1,5 @@
+from idlelib.mainmenu import menudefs
+
 print("Actividad 18")
 
 class Categoria:
@@ -10,7 +12,7 @@ class Producto:
         self.IDproducto = IDproducto
         self.nombre = nombre
         self.precio = precio
-        self.IDcategoroia = IDcategoria
+        self.IDcategoria = IDcategoria
         self.total_compras = total_compras
         self.total_ventas = total_ventas
         self.stock = stock
@@ -22,10 +24,10 @@ class Gestion_prodcutos:
         self.productos = {}
 
     def agregar_categoria(self, IDcategoria, nombre_categoria):
-        self.categoria[IDcategoria] = Categoria(IDcategoria, nombre_categoria)
+        self.categorias[IDcategoria] = Categoria(IDcategoria, nombre_categoria)
         print("Categoria agregada con éxito")
 
-    def agregar_productos(self,id_producto, nombre_producto, precio, id_categoria, stock):
+    def agregar_producto(self, id_producto, nombre_producto, precio, id_categoria, stock):
         self.productos[id_producto] = Producto(id_producto, nombre_producto, precio, id_categoria, stock)
         print("Producto ingresado con éxito... ")
 
@@ -47,7 +49,7 @@ class Menu:
             print("2. Agregar producto")
             print("3. Mostar lista de categotias")
             print("4. Mostrar lista de productos")
-            opcion = self.pedir_entero("Ingrse su opción")
+            opcion = self.pedir_entero("Ingrse su opción: ")
             match opcion:
                 case 1:
                     id_categoria = input("Ingrse el ID de la categoria: ")
@@ -57,10 +59,13 @@ class Menu:
                 case 2:
                     id_producto = input("Ingrese el ID del producto: ")
                     nombre_producto = input("Ingrese el nombre del producto: ")
-                    precio_producto = input("Ingrese el precio del producto: ")
+                    precio_producto = float(input("Ingrese el precio del producto: Q"))
                     id_cat = input("Ingrese el ID de la categoria: ")
                     if id_cat not in gestion.categorias:
-                        print("ERROR, primero agrege la categoria...")
+                        print("ERROR, primero agrege la categoria del producto...")
                     else:
                         stock = int(input("Ingrese el stock inicial: "))
-                        gestion.agregar_productos(id_producto, nombre_producto, precio_producto, id_cat, stock=stock)
+                        gestion.agregar_producto(id_producto, nombre_producto, precio_producto, id_cat, stock=stock)
+
+menu = Menu()
+menu.mostrar()
