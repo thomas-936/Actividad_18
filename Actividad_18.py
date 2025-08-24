@@ -28,7 +28,6 @@ class Gestion_prodcutos:
 gestion = Gestion_prodcutos()
 
 class Menu:
-
     def pedir_entero(self, mensaje):
         while True:
             try:
