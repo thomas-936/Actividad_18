@@ -166,6 +166,14 @@ class MenuGestionProductos:
                         print(f"Producto encontrado: {encontrado.IDproducto} |Nombre del producto: {encontrado.nombre_producto} | Precio: {encontrado.precio} | Stock: {encontrado.stock} ")
                     else:
                         print("Producto no encontrado... ")
+                case 6:
+                    print("------ELIMINAR PRODUCTOS----")
+                    eliminar_producto = input("Ingrese el ID del producto a eliminar: ")
+                    gestion.eliminar_producto(eliminar_producto)
+                case 7:
+                    print("Saliedo del menu de Gestión... ")
+                case _:
+                    print("Opción inválida, por favor intente nuevamente.")
 
 
 menu_productos = MenuGestionProductos()
