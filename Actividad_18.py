@@ -71,7 +71,6 @@ class MenuPricipal:
 
 
 
-
 class MenuGestionProductos:
     def pedir_entero(self, mensaje):
         while True:
