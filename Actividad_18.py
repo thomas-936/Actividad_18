@@ -58,6 +58,8 @@ class GestionProductos:
 
 gestion = GestionProductos()
 
+
+
 class Clientes:
     def __init__(self, nit_cliente, nombre_cliente, direccion_cliente, tel_cliente, correo_cliente):
         self.nit_cliente = nit_cliente
@@ -70,8 +72,65 @@ class GestionClientes:
     def __init__(self):
         self.diccionario_clientes = {}
 
-    def crear_cliente(self):
-        pass
+    def crear_cliente(self, nit_cliente, nombre_cliente, direccion_cliente, tel_cliente, correo_cliente):
+        self.diccionario_clientes[nit_cliente] = Clientes(nit_cliente, nombre_cliente, direccion_cliente, tel_cliente, correo_cliente)
+
+    def quicksort_clientes(self, clientes):
+        if len(clientes) <= 1:
+            return clientes
+        pivot = clientes[0]
+        menores = [c for c in clientes[1:] if c.nombre_cliente.lower() <= pivot.nombre_cliente.lower()]
+        mayores = [c for c in clientes[1:] if c.nombre_cliente.lower() > pivot.nombre_cliente.lower()]
+        return self.quicksort_clientes(menores) + [pivot] + self.quicksort_clientes(mayores)
+
+gestion_clientes = GestionClientes()
+
+class MenuGestionDeClientes:
+    def pedir_entero(self, mensaje):
+        while True:
+            try:
+                return int(input(mensaje))
+            except ValueError:
+                print("Error ingrese un NUMERO valido...")
+
+    def mostrar_menu_gestion_clientes(self):
+        opcion = 0
+        while opcion != 7:
+            print("+++ MENU GESTION DE CLIENTES+++")
+            print("1. Crear nuevo cliente")
+            print("2. Mostrar todos los clientes")
+            print("3. Buscar clientes")
+            print("4. Modificar clientes")
+            print("6. Eliminar clientes")
+            print("7. Salir del menu")
+            opcion = self.pedir_entero("Ingrese su Opción: ")
+            match opcion:
+                case 1:
+                    while True:
+                        nit_cliente = input("Ingrese el nit del cliente: ")
+                        if nit_cliente in gestion_clientes.diccionario_clientes:
+                            print("Este nit ya esta registrado, intente de nuevo... ")
+                        else:
+                            nombre_cliente = input("Ingrese el nombre del cliente: ")
+                            direccion_cliente = input("Ingrese la direccion del cliente: ")
+                            tel_cliente = input("Ingrese el número de teléfono del cliente: ")
+                            correo_cliente = input("Ingrese el correo del cliente: ")
+                            gestion_clientes.crear_cliente(nit_cliente, nombre_cliente, direccion_cliente, tel_cliente, correo_cliente)
+                            print("Cliente credo con éxito ;)")
+                            break
+                case 2:
+                    if not gestion_clientes.diccionario_clientes:
+                        print("No hay clientes registrados...")
+                    else:
+                        print("----- LISTA DE CLIENTES ORDENADA -----")
+                        lista_clientes = list(gestion_clientes.diccionario_clientes.values())
+                        lista_ordenada = gestion_clientes.quicksort_clientes(lista_clientes)
+                        for c in lista_ordenada:
+                            print(
+                                f"NIT: {c.nit_cliente} | Nombre: {c.nombre_cliente} | Dirección: {c.direccion_cliente} | Tel: {c.tel_cliente} | Correo: {c.correo_cliente}")
+                case 3:
+                    pass
+
 
 class MenuPrincipal:
     def pedir_entero(self, mensaje):
@@ -94,9 +153,9 @@ class MenuPrincipal:
                 case 1:
                     menu_productos.mostrar_menu_productos()
                 case 2:
+                    menu_gestion_clientes.mostrar_menu_gestion_clientes()
+                case 3:
                     pass
-
-
 
 
 class MenuGestionProductos:
@@ -156,8 +215,8 @@ class MenuGestionProductos:
                                 if p.IDcategoria == cat.IDcategoria:
                                     print(f"   - [{p.IDproducto}] {p.nombre_producto} | Precio: Q{p.precio} | Stock: {p.stock}")
                                     encontrados = True
-                        if not encontrados:
-                            print("No hay productos en esta categoria... ")
+                                if not encontrados:
+                                    print("No hay productos en esta categoria... ")
                 case 5:
                     print("------BUSCAR PRODUCTO POR CODIGO-----")
                     buscar_codigo = input("Ingrese el codigo que desea buscar: ")
@@ -179,3 +238,4 @@ class MenuGestionProductos:
 menu_productos = MenuGestionProductos()
 menu_principal = MenuPrincipal()
 menu_principal.mostrar_menu_principal()
+menu_gestion_clientes = MenuGestionDeClientes()
