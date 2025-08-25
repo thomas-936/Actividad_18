@@ -1,21 +1,21 @@
 print("Actividad 18")
 
 class Categoria:
-    def __init__(self, IDcategoria, nombre):
+    def __init__(self, IDcategoria, nombre_categoria):
         self.IDcategoria = IDcategoria
-        self.nombre = nombre
+        self.nombre_categoria = nombre_categoria
 
 class Producto:
-    def __init__(self, IDproducto, nombre, precio, IDcategoria, total_compras=0, total_ventas=0, stock=0):
+    def __init__(self, IDproducto, nombre_producto, precio, IDcategoria, total_compras=0, total_ventas=0, stock=0):
         self.IDproducto = IDproducto
-        self.nombre = nombre
+        self.nombre_producto = nombre_producto
         self.precio = precio
         self.IDcategoria = IDcategoria
         self.total_compras = total_compras
         self.total_ventas = total_ventas
         self.stock = stock
 
-class Gestion_prodcutos:
+class GestionProductos:
     def __init__(self):
         self.categorias = {}
         self.productos = {}
@@ -28,7 +28,15 @@ class Gestion_prodcutos:
         self.productos[id_producto] = Producto(id_producto, nombre_producto, precio, id_categoria, stock)
         print("Producto ingresado con éxito... ")
 
-gestion = Gestion_prodcutos()
+    def buscar_producto_por_IDproducto(self, IDbuscado):
+        lista = list(self.productos.values())
+        for i in range(len(lista)):
+            if lista[i].IDproducto == IDbuscado:
+                return  lista[i]
+        return  None
+
+
+gestion = GestionProductos()
 
 class Clientes:
     def __init__(self, nit_cliente, nombre_cliente, direccion_cliente, tel_cliente, correo_cliente):
@@ -45,8 +53,8 @@ class GestionClientes:
     def crear_cliete(self):
         pass
 
-class MenuPricipal:
-    def pedir_enteto(self, mensaje):
+class MenuPrincipal:
+    def pedir_entero(self, mensaje):
         while True:
             try:
                 return  int(input(mensaje))
@@ -61,10 +69,10 @@ class MenuPricipal:
             print("2. Gestion de clientes")
             print("3. Gestion de empleados")
 
-            opcion = self.pedir_enteto("Ingrese su opción: ")
+            opcion = self.pedir_entero("Ingrese su opción: ")
             match opcion:
                 case 1:
-                    menu_productos.mostrar_menu_produtos()
+                    menu_productos.mostrar_menu_productos()
                 case 2:
                     pass
 
@@ -79,20 +87,21 @@ class MenuGestionProductos:
             except ValueError:
                 print("Error ingrese un NUMERO valido...")
 
-    def mostrar_menu_produtos(self):
+    def mostrar_menu_productos(self):
         opcion = 0
-        while opcion != 5:
-            print("MENU")
+        while opcion != 6:
+            print("MENU GESTION DE PRODUCTOS")
             print("1. Agregar categoria")
             print("2. Agregar producto")
-            print("3. Mostar lista de categotias")
+            print("3. Mostar lista de categorias")
             print("4. Mostrar lista de productos")
-            print("5. Salir")
+            print("5. Buscar producto por codigo")
+            print("6. Salir del menu gestion de productos ")
             opcion = self.pedir_entero("Ingrse su opción: ")
             match opcion:
                 case 1:
-                    id_categoria = input("Ingrse el ID de la categoria: ")
-                    nombre_categoria = input("Ingrse el nombre de la categoria: ")
+                    id_categoria = input("Ingrese el ID de la categoria: ")
+                    nombre_categoria = input("Ingrese el nombre de la categoria: ")
                     gestion.agregar_categoria(id_categoria, nombre_categoria)
 
                 case 2:
@@ -105,5 +114,37 @@ class MenuGestionProductos:
                     else:
                         stock = int(input("Ingrese el stock inicial: "))
                         gestion.agregar_producto(id_producto, nombre_producto, precio_producto, id_cat, stock=stock)
+                case 3:
+                    if not gestion.categorias:
+                        print("No hay categorias registradas... ")
+                    else:
+                        print("-----LISTA DE CATEGORIAS-----")
+                        cont = 1
+                        for cat in gestion.categorias.values():
+                            print(f"{cont}- ID de categoria: {cat.IDcategoria}, Nombre de categoria: {cat.nombre_categoria}")
+                            cont +=1
+                case 4:
+                    if not gestion.productos:
+                        print("No hay productos ingresados... ")
+                    else:
+                        print("-----LISTA DE PRODUCTOS POR CATEGORIA------")
+                        for cat in gestion.categorias.values():
+                            print(f"\n>> Categoría: {cat.nombre} ({cat.IDcategoria})")
+                            encontrados = False
+                            for p in gestion.productos.values():
+                                if p.IDcategoria == cat.IDcategoria:
+                                    print(f"   - [{p.IDproducto}] {p.nombre} | Precio: Q{p.precio} | Stock: {p.stock}")
+                                encontrados = True
+                        if not encontrados:
+                            print("No hay productos en esta categoria... ")
+                case 5:
+                    print("------BUSCAR PRODUCTO POR CODIGO-----")
+                    buscar_codigo = input("Ingrese el codigo que desea buscar: ")
+                    encontrado =  gestion.buscar_producto_por_IDproducto(buscar_codigo)
+                    if encontrado:
+                        print(f"Producto encontrado: {encontrado.IDproducto} |Nombre del producto: {encontrado.nombre_producto} | Precio: {encontrado.precio} | Stock: {encontrado.stock} ")
+                    else:
+                        print("Producto no encontrado... ")
+
 
 menu_productos = MenuGestionProductos()
