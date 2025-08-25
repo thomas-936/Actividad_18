@@ -35,6 +35,26 @@ class GestionProductos:
                 return  lista[i]
         return  None
 
+    def eliminar_producto(self, IDbuscado):
+        if IDbuscado in self.productos:
+            print(f"¿Seguro que quiere eliminar el producto {IDbuscado}?")
+            while True:
+                try:
+                    confirmacion = int(input("Presione 1 para confirmar la eliminación\nPresione 2 para cancelar: "))
+                    if confirmacion == 1:
+                        del self.productos[IDbuscado]
+                        print(f"Producto con la ID: {IDbuscado} se ha eliminado con éxito.")
+                        break
+                    elif confirmacion == 2:
+                        print("El producto no se eliminó. ;)")
+                        break
+                    else:
+                        print("Opción inválida. Intente nuevamente...")
+                except ValueError:
+                    print("Error: ingrese un número válido.")
+        else:
+            print(f"No se encontró ningún producto con ID {IDbuscado}.")
+
 
 gestion = GestionProductos()
 
@@ -50,7 +70,7 @@ class GestionClientes:
     def __init__(self):
         self.diccionario_clientes = {}
 
-    def crear_cliete(self):
+    def crear_cliente(self):
         pass
 
 class MenuPrincipal:
@@ -89,14 +109,15 @@ class MenuGestionProductos:
 
     def mostrar_menu_productos(self):
         opcion = 0
-        while opcion != 6:
+        while opcion != 7:
             print("+++ MENU GESTION DE PRODUCTOS +++")
             print("1. Agregar categorias de productos")
             print("2. Agregar producto")
             print("3. Mostar lista de categorias")
             print("4. Mostrar lista de productos")
             print("5. Buscar producto por codigo")
-            print("6. Salir del menu gestion de productos ")
+            print("6. Eliminar productos")
+            print("7. Salir del menu gestion de productos ")
             opcion = self.pedir_entero("Ingrse su opción: ")
             match opcion:
                 case 1:
