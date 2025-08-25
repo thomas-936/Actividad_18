@@ -25,7 +25,7 @@ class GestionProductos:
         print("Categoria agregada con éxito")
 
     def agregar_producto(self, id_producto, nombre_producto, precio, id_categoria, stock):
-        self.productos[id_producto] = Producto(id_producto, nombre_producto, precio, id_categoria, stock)
+        self.productos[id_producto] = Producto(id_producto, nombre_producto, precio, id_categoria, stock=stock)
         print("Producto ingresado con éxito... ")
 
     def buscar_producto_por_IDproducto(self, IDbuscado):
@@ -64,7 +64,7 @@ class MenuPrincipal:
     def mostrar_menu_principal(self):
         opcion = 0
         while opcion !=5:
-            print("Menu General")
+            print("+++Menu General+++")
             print("1. Gestion de productos")
             print("2. Gestion de clientes")
             print("3. Gestion de empleados")
@@ -90,8 +90,8 @@ class MenuGestionProductos:
     def mostrar_menu_productos(self):
         opcion = 0
         while opcion != 6:
-            print("MENU GESTION DE PRODUCTOS")
-            print("1. Agregar categoria")
+            print("+++ MENU GESTION DE PRODUCTOS +++")
+            print("1. Agregar categorias de productos")
             print("2. Agregar producto")
             print("3. Mostar lista de categorias")
             print("4. Mostrar lista de productos")
@@ -129,12 +129,12 @@ class MenuGestionProductos:
                     else:
                         print("-----LISTA DE PRODUCTOS POR CATEGORIA------")
                         for cat in gestion.categorias.values():
-                            print(f"\n>> Categoría: {cat.nombre} ({cat.IDcategoria})")
+                            print(f"\n>> Categoría: {cat.nombre_categoria} ({cat.IDcategoria})")
                             encontrados = False
                             for p in gestion.productos.values():
                                 if p.IDcategoria == cat.IDcategoria:
-                                    print(f"   - [{p.IDproducto}] {p.nombre} | Precio: Q{p.precio} | Stock: {p.stock}")
-                                encontrados = True
+                                    print(f"   - [{p.IDproducto}] {p.nombre_producto} | Precio: Q{p.precio} | Stock: {p.stock}")
+                                    encontrados = True
                         if not encontrados:
                             print("No hay productos en esta categoria... ")
                 case 5:
@@ -148,3 +148,5 @@ class MenuGestionProductos:
 
 
 menu_productos = MenuGestionProductos()
+menu_principal = MenuPrincipal()
+menu_principal.mostrar_menu_principal()
