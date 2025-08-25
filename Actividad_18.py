@@ -1,5 +1,3 @@
-from idlelib.mainmenu import menudefs
-
 print("Actividad 18")
 
 class Categoria:
@@ -17,7 +15,6 @@ class Producto:
         self.total_ventas = total_ventas
         self.stock = stock
 
-
 class Gestion_prodcutos:
     def __init__(self):
         self.categorias = {}
@@ -33,7 +30,49 @@ class Gestion_prodcutos:
 
 gestion = Gestion_prodcutos()
 
-class Menu:
+class Clientes:
+    def __init__(self, nit_cliente, nombre_cliente, direccion_cliente, tel_cliente, correo_cliente):
+        self.nit_cliente = nit_cliente
+        self.nombre_cliente =nombre_cliente
+        self.direccion_cliente = direccion_cliente
+        self.tel_cliente = tel_cliente
+        self.correo_cliente = correo_cliente
+
+class GestionClientes:
+    def __init__(self):
+        self.diccionario_clientes = {}
+
+    def crear_cliete(self):
+        pass
+
+class MenuPricipal:
+    def pedir_enteto(self, mensaje):
+        while True:
+            try:
+                return  int(input(mensaje))
+            except ValueError:
+                print("Error ingrese un NUMERO valido...")
+
+    def mostrar_menu_principal(self):
+        opcion = 0
+        while opcion !=5:
+            print("Menu General")
+            print("1. Gestion de productos")
+            print("2. Gestion de clientes")
+            print("3. Gestion de empleados")
+
+            opcion = self.pedir_enteto("Ingrese su opción: ")
+            match opcion:
+                case 1:
+                    menu_productos.mostrar_menu_produtos()
+                case 2:
+                    pass
+
+
+
+
+
+class MenuGestionProductos:
     def pedir_entero(self, mensaje):
         while True:
             try:
@@ -41,7 +80,7 @@ class Menu:
             except ValueError:
                 print("Error ingrese un NUMERO valido...")
 
-    def mostrar(self):
+    def mostrar_menu_produtos(self):
         opcion = 0
         while opcion != 5:
             print("MENU")
@@ -49,6 +88,7 @@ class Menu:
             print("2. Agregar producto")
             print("3. Mostar lista de categotias")
             print("4. Mostrar lista de productos")
+            print("5. Salir")
             opcion = self.pedir_entero("Ingrse su opción: ")
             match opcion:
                 case 1:
@@ -67,5 +107,4 @@ class Menu:
                         stock = int(input("Ingrese el stock inicial: "))
                         gestion.agregar_producto(id_producto, nombre_producto, precio_producto, id_cat, stock=stock)
 
-menu = Menu()
-menu.mostrar()
+menu_productos = MenuGestionProductos()
