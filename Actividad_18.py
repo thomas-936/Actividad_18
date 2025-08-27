@@ -128,8 +128,6 @@ class GestionClientes:
         else:
             print(f"No se encontro un cliente con el NIT: {nit_cliente}")
 
-
-
 gestion_clientes = GestionClientes()
 
 class MenuGestionDeClientes:
@@ -223,6 +221,43 @@ class MenuPrincipal:
                 case 3:
                     pass
 
+class PuestosDeEmpleado:
+    def __init__(self, IDpuesto, nombre_puesto):
+        self.IDpuesto = IDpuesto
+        self.nombre_puesto = nombre_puesto
+
+class Empleados:
+    def __init__(self, IDempledo, nombre_empleado, IDpuesto, direccion_empleado, telefono_empleado, correo_empleado):
+        self.IDempledo = IDempledo
+        self.nombre_empleado = nombre_empleado
+        self.IDpuesto = IDpuesto
+        self.direccion_empleado = direccion_empleado
+        self.telefono_empleado = telefono_empleado
+        self.correo_empleado = correo_empleado
+
+class MenuGestionEmpleados:
+    def pedir_entero(self, mensaje):
+        while True:
+            try:
+                return int(input(mensaje))
+            except ValueError:
+                print("Ingrese un NUMERO valido... ")
+
+    def mostrar_menu_empleados(self):
+        opcion = 0
+        while opcion != 6:
+            print("+++ MENU GESTION DE EMPLEADOS +++")
+            print("1. Agregar Puesto de trabajo")
+            print("2. Agregar empleado ")
+            print("3. Mostrar lista de empleados ")
+            print("4. Buscar emplado por ID de empleado")
+            print("5. Elimimar empleados")
+            print("6. Salir del menú gestio de empleados ")
+            opcion = self.pedir_entero("Ingerse su opción: ")
+            match opcion:
+                case 1:
+                    pass
+
 
 class MenuGestionProductos:
     def pedir_entero(self, mensaje):
@@ -242,8 +277,8 @@ class MenuGestionProductos:
             print("4. Mostrar lista de productos")
             print("5. Buscar producto por codigo")
             print("6. Eliminar productos")
-            print("7. Salir del menu gestion de productos ")
-            opcion = self.pedir_entero("Ingrse su opción: ")
+            print("7. Salir del menú gestion de productos ")
+            opcion = self.pedir_entero("Ingrese su opción: ")
             match opcion:
                 case 1:
                     id_categoria = input("Ingrese el ID de la categoria: ")
