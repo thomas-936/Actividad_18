@@ -72,6 +72,13 @@ class GestionClientes:
     def __init__(self):
         self.diccionario_clientes = {}
 
+    def pedir_entero(self, mensaje):
+        while True:
+            try:
+                return int(input(mensaje))
+            except ValueError:
+                print("Ingrese un NUMERO valido... ")
+
     def crear_cliente(self, nit_cliente, nombre_cliente, direccion_cliente, tel_cliente, correo_cliente):
         self.diccionario_clientes[nit_cliente] = Clientes(nit_cliente, nombre_cliente, direccion_cliente, tel_cliente, correo_cliente)
 
@@ -82,6 +89,46 @@ class GestionClientes:
         menores = [c for c in clientes[1:] if c.nombre_cliente.lower() <= pivot.nombre_cliente.lower()]
         mayores = [c for c in clientes[1:] if c.nombre_cliente.lower() > pivot.nombre_cliente.lower()]
         return self.quicksort_clientes(menores) + [pivot] + self.quicksort_clientes(mayores)
+
+    def buscar_cliente_por_nit(self, busco_nit_cliente):
+        lista_clentes = list(self.diccionario_clientes.values())
+        for j in range(len(lista_clentes)):
+            if lista_clentes[j].nit_cliente == busco_nit_cliente:
+                return lista_clentes[j]
+        return None
+
+    def modificar_datos_cliente(self, nit):
+        if nit in self. diccionario_clientes:
+            cliente = self.diccionario_clientes[nit]
+            print(f"Cliente econtrado {cliente.nombre_cliente}")
+            print("¿Que dato desea modificar?")
+            print("1. Correo")
+            print("2. Teléfono")
+            opcion = gestion_clientes.pedir_entero("Ingrese la Opción que desea modificar: ")
+
+            if opcion == 1:
+                nuevo_correo = input("Ingrese el nuevo correo del cliente: ")
+                cliente.correo_cliente = nuevo_correo
+                print("Correo modificado con éxito... ")
+            elif opcion ==  2:
+                nuevo_telefono = input("Ingrese el nuevo Teléfono del cliente: ")
+                cliente.tel_cliente = nuevo_telefono
+                print("Teléfono modificado con éxito... ")
+
+    def eliminar_clientes(self, nit_cliente):
+        if nit_cliente in self.diccionario_clientes:
+            cliente = self.diccionario_clientes[nit_cliente]
+            print(f"¿Seguro que quiere eliminar al cliente {cliente.nombre_cliente} con el NIT: {cliente.nit_cliente}?")
+            confirmacion = self.pedir_entero("Ingrese 1 para confirmar o dos para cancelar: ")
+            if confirmacion == 1:
+                del  self.diccionario_clientes[nit_cliente]
+                print("Cliente elimindo con éxito... ")
+            else:
+                print("Eliminación cancelada")
+        else:
+            print(f"No se encontro un cliente con el NIT: {nit_cliente}")
+
+
 
 gestion_clientes = GestionClientes()
 
@@ -95,14 +142,14 @@ class MenuGestionDeClientes:
 
     def mostrar_menu_gestion_clientes(self):
         opcion = 0
-        while opcion != 7:
+        while opcion != 6:
             print("+++ MENU GESTION DE CLIENTES+++")
             print("1. Crear nuevo cliente")
             print("2. Mostrar todos los clientes")
             print("3. Buscar clientes")
             print("4. Modificar clientes")
-            print("6. Eliminar clientes")
-            print("7. Salir del menu")
+            print("5. Eliminar clientes")
+            print("6. Salir del menu")
             opcion = self.pedir_entero("Ingrese su Opción: ")
             match opcion:
                 case 1:
@@ -129,7 +176,26 @@ class MenuGestionDeClientes:
                             print(
                                 f"NIT: {c.nit_cliente} | Nombre: {c.nombre_cliente} | Dirección: {c.direccion_cliente} | Tel: {c.tel_cliente} | Correo: {c.correo_cliente}")
                 case 3:
-                    pass
+                    if not gestion_clientes.diccionario_clientes:
+                        print("No hay clientes resgistrados... ")
+                    else:
+                        print("-----BUSCAR CLIENTE POR NIT-----")
+                        buscar_nit = input("Ingrese el nit del cliente: ")
+                        encontrado = gestion_clientes.buscar_cliente_por_nit(buscar_nit)
+                        if encontrado:
+                            print(f"El cliente con el NIT {encontrado} es {encontrado.nombre_cliente}")
+                        else:
+                            print("Cliente no encontrado... ")
+
+                case 4:
+                    print("---MODIFFICAR DATOS--- ")
+                    nit_cliente_modificar = input("Ingrese el NIT del cliente para buscarlo: ")
+                    gestion_clientes.modificar_datos_cliente(nit_cliente_modificar)
+
+                case 5:
+                    print("---ELIMINAR CLIENTES---")
+                    eliminar = input("Ingrse el NIT del cliente que desea eliminar: ")
+                    gestion_clientes.eliminar_clientes(eliminar)
 
 
 class MenuPrincipal:
