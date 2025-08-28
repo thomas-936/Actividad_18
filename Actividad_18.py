@@ -219,21 +219,89 @@ class MenuPrincipal:
                 case 2:
                     menu_gestion_clientes.mostrar_menu_gestion_clientes()
                 case 3:
+                    menu_gestion_empleados.mostrar_menu_empleados()
+                case 4:
                     pass
 
+
 class PuestosDeEmpleado:
-    def __init__(self, IDpuesto, nombre_puesto):
-        self.IDpuesto = IDpuesto
+    def __init__(self, id_puesto, nombre_puesto):
+        self.id_puesto = id_puesto
         self.nombre_puesto = nombre_puesto
 
 class Empleados:
-    def __init__(self, IDempledo, nombre_empleado, IDpuesto, direccion_empleado, telefono_empleado, correo_empleado):
-        self.IDempledo = IDempledo
-        self.nombre_empleado = nombre_empleado
-        self.IDpuesto = IDpuesto
-        self.direccion_empleado = direccion_empleado
-        self.telefono_empleado = telefono_empleado
-        self.correo_empleado = correo_empleado
+    def __init__(self, id_empledo, nombre, id_puesto, direccion, telefono, correo):
+        self.id_empledo = id_empledo
+        self.nombre = nombre
+        self.IDpuesto = id_puesto
+        self.direccion = direccion
+        self.telefono = telefono
+        self.correo = correo
+
+class GestionEmpleados:
+    def __init__(self):
+        self.diccionario_puestos_empleados = {}
+        self.diccionario_empleados = {}
+
+    def pedir_entero(self, mensaje):
+        while True:
+            try:
+                return int(input(mensaje))
+            except ValueError:
+                print("Ingrese un NUMERO VALIDO... ")
+
+    def agregar_puesto_empleado(self, IDpuesto, nombre_puesto):
+        self.diccionario_puestos_empleados[IDpuesto] = PuestosDeEmpleado(IDpuesto, nombre_puesto)
+        print("Puesto de empleado agragado con éxito... ")
+
+    def agregar_empleado(self, IDempledo, nombre_empleado, IDpuesto, direccion_empleado, telefono_empleado, correo_empleado):
+        self.diccionario_empleados[IDempledo] = Empleados(IDempledo, nombre_empleado, IDpuesto, direccion_empleado, telefono_empleado, correo_empleado)
+        print("Empleado agregado con éxtio... ")
+
+    def mostrar_empleados_por_puesto(self):
+        if not self.diccionario_empleados:
+            print("No hay empleados registrados...")
+            return
+
+        print("\n=== EMPLEADOS POR PUESTO ===")
+        for id_puesto, puesto in self.diccionario_puestos_empleados.items():
+            print(f"\n>> Puesto: {puesto.nombre_puesto} ({id_puesto})")
+            empleados_puesto = [
+                emp for emp in self.diccionario_empleados.values() if emp.id_puesto == id_puesto
+            ]
+            if empleados_puesto:
+                for emp in empleados_puesto:
+                    print(
+                        f"   - ID: {emp.id_empleado} | Nombre: {emp.nombre} | Tel: {emp.telefono} | Correo: {emp.correo}")
+            else:
+                print("   (No hay empleados en este puesto)")
+
+    def buscar_empleado_por_ID(self, busco_id_empleado):
+        lista_empleados = list(self.diccionario_empleados.values())
+        for i in range(len(lista_empleados)):
+            if lista_empleados[i].id_empleado == busco_id_empleado:
+                return  lista_empleados[i]
+        return  None
+
+    def eliminar_empleados_por_ID(self, buscar_id_empleado):
+        lista_empleados = list(self.diccionario_empleados.values())
+        for i in range(len(lista_empleados)):
+            if lista_empleados[i].id_empleado == buscar_id_empleado:
+                print(f"Esta seguro que quiere eliminar al empleado {buscar_id_empleado}")
+                confirmacion = self.pedir_entero("Precione 1 para confirmar: "
+                                                 "\nPrecine 2 para cancelar: ")
+                if confirmacion == 1:
+                    del self.diccionario_empleados[buscar_id_empleado]
+                    print("Empeado eliminado con éxito... ")
+                elif confirmacion == 2:
+                    print("El empleado no se elimino... ")
+                else:
+                    print("Opción no valida... ")
+            else:
+                print(f"No se encontro ningun empleado con el ID {buscar_id_empleado} ")
+
+
+gestion_empleados = GestionEmpleados()
 
 class MenuGestionEmpleados:
     def pedir_entero(self, mensaje):
@@ -243,20 +311,62 @@ class MenuGestionEmpleados:
             except ValueError:
                 print("Ingrese un NUMERO valido... ")
 
+
     def mostrar_menu_empleados(self):
         opcion = 0
         while opcion != 6:
             print("+++ MENU GESTION DE EMPLEADOS +++")
             print("1. Agregar Puesto de trabajo")
             print("2. Agregar empleado ")
-            print("3. Mostrar lista de empleados ")
+            print("3. Mostrar lista de empleados por puesto ")
             print("4. Buscar emplado por ID de empleado")
             print("5. Elimimar empleados")
             print("6. Salir del menú gestio de empleados ")
             opcion = self.pedir_entero("Ingerse su opción: ")
             match opcion:
                 case 1:
-                    pass
+                    print("--- AGREGAR PUESTOS DE TRABAJO ---")
+                    id_puesto = input("Ingrese el ID del puesto: ")
+                    nombre_puesto = input("Ingrese el nombre del puesto: ")
+                    gestion_empleados.agregar_puesto_empleado(id_puesto, nombre_puesto)
+
+                case 2:
+                    print("--- AGREGAR EMPLEADO ---")
+                    cantidad = self.pedir_entero("Ingrese la cantidad de empleados que desea registrar: ")
+                    for i in range(cantidad):
+                        print(f"---Ingrese el empleado #{i+1} ---")
+                        id_empleado = input("Ingrese el ID del empleado: ")
+                        if id_empleado in gestion_empleados.diccionario_empleados:
+                            print("Este ID ya existe, inntente de nuevo... ")
+                            continue
+                        nombre_empleado = input("Ingrese el nombre del empleado: ")
+                        id_puesto = input("Ingrese el ID del puesto: ")
+                        direccion_empleado = input("Ingrese la direccion del empleado: ")
+                        tel_empleado = input("Ingrese el número de teléfono del empleado: ")
+                        correo_empleado = input("Ingrese el correo del empleado: ")
+                        gestion_empleados.agregar_empleado(id_empleado, nombre_empleado, id_puesto, direccion_empleado, tel_empleado, correo_empleado)
+                        print("Empleado ingresado con éxito... ")
+
+                case 3:
+                    gestion_empleados.mostrar_empleados_por_puesto()
+                case 4:
+                    buscar_id = input("Ingrese el ID del enpleado a bucar: ")
+                    empleado = gestion_empleados.buscar_empleado_por_ID(buscar_id)
+                    if empleado:
+                        puesto = gestion_empleados.diccionario_puestos_empleados.get(empleado.id_puesto)
+                        nombre_puesto = puesto.nombre_puesto if puesto else "Sin puesto asignado"
+                        print("\n=== Empleado encontrado ===")
+                        print(f"ID: {empleado.id_empleado}")
+                        print(f"Nombre: {empleado.nombre}")
+                        print(f"Puesto: {nombre_puesto}")
+                        print(f"Dirección: {empleado.direccion}")
+                        print(f"Teléfono: {empleado.telefono}")
+                        print(f"Correo: {empleado.correo}")
+                    else:
+                        print("Empleado no encontrado...")
+                case 5:
+                    eliminar_id = input("Ingrese el ID del empleado que desea eliminar: ")
+                    gestion_empleados.eliminar_empleados_por_ID(eliminar_id)
 
 
 class MenuGestionProductos:
@@ -337,6 +447,9 @@ class MenuGestionProductos:
 
 
 menu_productos = MenuGestionProductos()
-menu_principal = MenuPrincipal()
-menu_principal.mostrar_menu_principal()
 menu_gestion_clientes = MenuGestionDeClientes()
+menu_gestion_empleados = MenuGestionEmpleados()
+menu_principal = MenuPrincipal()
+
+
+menu_principal.mostrar_menu_principal()
