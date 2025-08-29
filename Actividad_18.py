@@ -1,3 +1,5 @@
+from http.cookiejar import offset_from_tz_string
+
 print("Actividad 18")
 
 class Categoria:
@@ -19,6 +21,24 @@ class GestionProductos:
     def __init__(self):
         self.categorias = {}
         self.productos = {}
+        self.cargar_productos()
+
+    def caragar_productos(self):
+        try:
+            with open("productos.txt", "r", encoding="utf-8") as archivo:
+                for linea in archivo:
+                    linea = linea.strip()
+                    if linea:
+                        id_producto, nombre, precio, id_categoria, stock = linea.split(":")
+                        self.productos[id_producto] = Producto(id_producto, nombre, float(precio), id_categoria, stock=int(stock))
+            print("Productos cargados desde productos.txt ")
+        except FileNotFoundError:
+            print("No existe el archivo productos.txt, se creará al guardar")
+
+    def guardar_productos(self):
+        with open("productos.txt", "r", encoding="utf-8") as archivo:
+            for p in self.productos.values():
+                archivo.write(f"{p.IDproducto}:{p.nombre_producto}:{p.precio}:{p.IDcategoria}:{p.stock}\n")
 
     def agregar_categoria(self, IDcategoria, nombre_categoria):
         self.categorias[IDcategoria] = Categoria(IDcategoria, nombre_categoria)
@@ -71,6 +91,24 @@ class Clientes:
 class GestionClientes:
     def __init__(self):
         self.diccionario_clientes = {}
+        self.cargar_clientes()
+
+    def cargar_clientes(self):
+        try:
+            with open("clientes.txt", "r", encoding="utf-8") as archivo:
+                for linea in archivo:
+                    linea = linea.strip()
+                    if linea:
+                        nit_cliente, nombre_cliente, direccion, telefono, correo = linea.split(":")
+                        self.diccionario_clientes[nit_cliente]= Clientes(nit_cliente, nombre_cliente, direccion, telefono, correo)
+            print("Cliente cargados desde clientes.txt")
+        except FileNotFoundError:
+            print("No existe le archivo cliente.txt se creará al guardar")
+
+    def guardar_clientes(self):
+        with open("clientes.txt", "w", encoding="utf-8") as archivo:
+            for cliente in self.diccionario_clientes.values():
+                archivo.write(f"{cliente.nit_cliente}:{cliente.nombre_cliente}:{cliente.direccion_cliente}:{cliente.tel_cliente}:{cliente.correo_cliente}\n")
 
     def pedir_entero(self, mensaje):
         while True:
@@ -81,6 +119,8 @@ class GestionClientes:
 
     def crear_cliente(self, nit_cliente, nombre_cliente, direccion_cliente, tel_cliente, correo_cliente):
         self.diccionario_clientes[nit_cliente] = Clientes(nit_cliente, nombre_cliente, direccion_cliente, tel_cliente, correo_cliente)
+        self.guardar_clientes()
+        print(f"Cliente {nombre_cliente} agregado y guardado correctamente ;)")
 
     def quicksort_clientes(self, clientes):
         if len(clientes) <= 1:
@@ -105,7 +145,6 @@ class GestionClientes:
             print("1. Correo")
             print("2. Teléfono")
             opcion = gestion_clientes.pedir_entero("Ingrese la Opción que desea modificar: ")
-
             if opcion == 1:
                 nuevo_correo = input("Ingrese el nuevo correo del cliente: ")
                 cliente.correo_cliente = nuevo_correo
@@ -114,6 +153,8 @@ class GestionClientes:
                 nuevo_telefono = input("Ingrese el nuevo Teléfono del cliente: ")
                 cliente.tel_cliente = nuevo_telefono
                 print("Teléfono modificado con éxito... ")
+                self.guardar_clientes()
+                print("Datos modificados con éxito... ")
 
     def eliminar_clientes(self, nit_cliente):
         if nit_cliente in self.diccionario_clientes:
@@ -122,6 +163,7 @@ class GestionClientes:
             confirmacion = self.pedir_entero("Ingrese 1 para confirmar o dos para cancelar: ")
             if confirmacion == 1:
                 del  self.diccionario_clientes[nit_cliente]
+                self.guardar_clientes()
                 print("Cliente elimindo con éxito... ")
             else:
                 print("Eliminación cancelada")
@@ -230,8 +272,8 @@ class PuestosDeEmpleado:
         self.nombre_puesto = nombre_puesto
 
 class Empleados:
-    def __init__(self, id_empledo, nombre, id_puesto, direccion, telefono, correo):
-        self.id_empledo = id_empledo
+    def __init__(self, id_empleado, nombre, id_puesto, direccion, telefono, correo):
+        self.id_empleado = id_empleado
         self.nombre = nombre
         self.IDpuesto = id_puesto
         self.direccion = direccion
@@ -242,6 +284,25 @@ class GestionEmpleados:
     def __init__(self):
         self.diccionario_puestos_empleados = {}
         self.diccionario_empleados = {}
+        self.cargar_empleados()
+
+
+    def cargar_empleados(self):
+        try:
+            with open("empleados.txt", "r", encoding="utf-8") as archivo:
+                for linea in archivo:
+                    linea = linea.strip()
+                    if linea:
+                        id_empleado, nombre_empleado, id_puesto, direccion_empleado, telefono_empleado, correo_empleado = linea.split(":")
+                        self.diccionario_empleados[id_empleado] = Empleados(id_empleado, nombre_empleado, id_puesto, direccion_empleado, telefono_empleado, correo_empleado)
+            print("Empleados cargados desde empleados.txt")
+        except FileNotFoundError:
+            print("No existe el archivo empleados.txt se creará uno al guardar.")
+
+    def guardar_empleados(self):
+        with open("empleados.txt", "w", encoding="utf-8") as archivo:
+            for e in self.diccionario_empleados.values():
+                archivo.write(f"{e.id_empleado}:{e.nombre_empleado}:{e.id_puesto}:{e.direccion_empleado}:{e.telefono_empleado}:{e.correo_empleado}\n")
 
     def pedir_entero(self, mensaje):
         while True:
@@ -256,6 +317,7 @@ class GestionEmpleados:
 
     def agregar_empleado(self, IDempledo, nombre_empleado, IDpuesto, direccion_empleado, telefono_empleado, correo_empleado):
         self.diccionario_empleados[IDempledo] = Empleados(IDempledo, nombre_empleado, IDpuesto, direccion_empleado, telefono_empleado, correo_empleado)
+        self.guardar_empleados()
         print("Empleado agregado con éxtio... ")
 
     def mostrar_empleados_por_puesto(self):
