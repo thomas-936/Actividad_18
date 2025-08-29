@@ -24,12 +24,23 @@ class GestionProductos:
     def cargar_productos(self):
         try:
             with open("productos.txt", "r", encoding="utf-8") as archivo:
-                for linea in archivo:
+                for num_linea, linea in enumerate(archivo, start=1):
                     linea = linea.strip()
-                    if linea:
-                        id_producto, nombre, precio, id_categoria, stock = linea.split(":")
-                        self.diccionario_productos[id_producto] = Producto(id_producto, nombre, float(precio), id_categoria, stock=int(stock))
-            print("Productos cargados desde productos.txt ")
+                    if not linea:
+                        continue
+                    partes = linea.split(":")
+                    if len(partes) != 5:
+                        print(f"[productos.txt] Línea {num_linea} inválida (se esperan 5 campos): {linea}")
+                        continue
+                    id_producto, nombre, precio, id_categoria, stock = partes
+                    try:
+                        precio_f = float(precio)
+                        stock_i = int(stock)
+                    except ValueError:
+                        print(f"[productos.txt] Línea {num_linea} valores numéricos inválidos: {linea}")
+                        continue
+                    self.diccionario_productos[id_producto] = Producto(id_producto, nombre, precio_f, id_categoria, stock=stock_i)
+            print("Productos cargados desde productos.txt")
         except FileNotFoundError:
             print("No existe el archivo productos.txt, se creará al guardar")
 
@@ -44,14 +55,15 @@ class GestionProductos:
 
     def agregar_producto(self, id_producto, nombre_producto, precio, id_categoria, stock):
         self.diccionario_productos[id_producto] = Producto(id_producto, nombre_producto, precio, id_categoria, stock=stock)
+        self.guardar_productos()   # guardamos aquí para asegurar persistencia
         print("Producto ingresado con éxito... ")
 
     def buscar_producto_por_IDproducto(self, IDbuscado):
         lista = list(self.diccionario_productos.values())
         for i in range(len(lista)):
             if lista[i].IDproducto == IDbuscado:
-                return  lista[i]
-        return  None
+                return lista[i]
+        return None
 
     def eliminar_producto(self, IDbuscado):
         if IDbuscado in self.diccionario_productos:
@@ -59,44 +71,45 @@ class GestionProductos:
             while True:
                 try:
                     confirmacion = int(input("Presione 1 para confirmar la eliminación\nPresione 2 para cancelar: "))
-                    if confirmacion == 1:
-                        del self.diccionario_productos[IDbuscado]
-                        print(f"Producto con la ID: {IDbuscado} se ha eliminado con éxito.")
-                        break
-                    elif confirmacion == 2:
-                        print("El producto no se eliminó. ;)")
-                        break
-                    else:
-                        print("Opción inválida. Intente nuevamente...")
                 except ValueError:
                     print("Error: ingrese un número válido.")
+                    continue
+                if confirmacion == 1:
+                    del self.diccionario_productos[IDbuscado]
+                    self.guardar_productos()
+                    print(f"Producto con la ID: {IDbuscado} se ha eliminado con éxito.")
+                    break
+                elif confirmacion == 2:
+                    print("El producto no se eliminó. ;)")
+                    break
+                else:
+                    print("Opción inválida. Intente nuevamente...")
         else:
             print(f"No se encontró ningún producto con ID {IDbuscado}.")
 
-    def modificar_producto(self, id_modificar, nuevo_precio=None, nuevo_stock= None):
+    def modificar_producto(self, id_modificar, nuevo_precio=None, nuevo_stock=None):
         lista_productos = list(self.diccionario_productos.values())
         for i in range(len(lista_productos)):
             if lista_productos[i].IDproducto == id_modificar:
                 if nuevo_precio is not None:
-                    lista_productos[i].precio =nuevo_precio
+                    lista_productos[i].precio = nuevo_precio
                 if nuevo_stock is not None:
                     lista_productos[i].stock = nuevo_stock
                 self.diccionario_productos[id_modificar] = lista_productos[i]
+                self.guardar_productos()
                 print(f"Producto con ID {id_modificar} modificado con éxito.")
-                return  lista_productos[i]
-        print(f"No se encontro un producto con ID {id_modificar}. ")
-        return  None
-
+                return lista_productos[i]
+        print(f"No se encontró un producto con ID {id_modificar}.")
+        return None
 
 
 gestion_productos = GestionProductos()
 
 
-
 class Clientes:
     def __init__(self, nit_cliente, nombre_cliente, direccion_cliente, tel_cliente, correo_cliente):
         self.nit_cliente = nit_cliente
-        self.nombre_cliente =nombre_cliente
+        self.nombre_cliente = nombre_cliente
         self.direccion_cliente = direccion_cliente
         self.tel_cliente = tel_cliente
         self.correo_cliente = correo_cliente
@@ -109,14 +122,19 @@ class GestionClientes:
     def cargar_clientes(self):
         try:
             with open("clientes.txt", "r", encoding="utf-8") as archivo:
-                for linea in archivo:
+                for num_linea, linea in enumerate(archivo, start=1):
                     linea = linea.strip()
-                    if linea:
-                        nit_cliente, nombre_cliente, direccion, telefono, correo = linea.split(":")
-                        self.diccionario_clientes[nit_cliente]= Clientes(nit_cliente, nombre_cliente, direccion, telefono, correo)
-            print("Cliente cargados desde clientes.txt")
+                    if not linea:
+                        continue
+                    partes = linea.split(":")
+                    if len(partes) != 5:
+                        print(f"[clientes.txt] Línea {num_linea} inválida (se esperan 5 campos): {linea}")
+                        continue
+                    nit_cliente, nombre_cliente, direccion, telefono, correo = partes
+                    self.diccionario_clientes[nit_cliente] = Clientes(nit_cliente, nombre_cliente, direccion, telefono, correo)
+            print("Clientes cargados desde clientes.txt")
         except FileNotFoundError:
-            print("No existe le archivo cliente.txt se creará al guardar")
+            print("No existe el archivo clientes.txt, se creará al guardar")
 
     def guardar_clientes(self):
         with open("clientes.txt", "w", encoding="utf-8") as archivo:
@@ -128,7 +146,7 @@ class GestionClientes:
             try:
                 return int(input(mensaje))
             except ValueError:
-                print("Ingrese un NUMERO valido... ")
+                print("Ingrese un NUMERO valido...")
 
     def crear_cliente(self, nit_cliente, nombre_cliente, direccion_cliente, tel_cliente, correo_cliente):
         self.diccionario_clientes[nit_cliente] = Clientes(nit_cliente, nombre_cliente, direccion_cliente, tel_cliente, correo_cliente)
@@ -144,46 +162,50 @@ class GestionClientes:
         return self.quicksort_clientes(menores) + [pivot] + self.quicksort_clientes(mayores)
 
     def buscar_cliente_por_nit(self, busco_nit_cliente):
-        lista_clentes = list(self.diccionario_clientes.values())
-        for j in range(len(lista_clentes)):
-            if lista_clentes[j].nit_cliente == busco_nit_cliente:
-                return lista_clentes[j]
+        lista_clientes = list(self.diccionario_clientes.values())
+        for j in range(len(lista_clientes)):
+            if lista_clientes[j].nit_cliente == busco_nit_cliente:
+                return lista_clientes[j]
         return None
 
     def modificar_datos_cliente(self, nit):
-        if nit in self. diccionario_clientes:
+        if nit in self.diccionario_clientes:
             cliente = self.diccionario_clientes[nit]
-            print(f"Cliente econtrado {cliente.nombre_cliente}")
-            print("¿Que dato desea modificar?")
+            print(f"Cliente encontrado: {cliente.nombre_cliente}")
+            print("¿Qué dato desea modificar?")
             print("1. Correo")
             print("2. Teléfono")
-            opcion = gestion_clientes.pedir_entero("Ingrese la Opción que desea modificar: ")
+            opcion = self.pedir_entero("Ingrese la Opción que desea modificar: ")
             if opcion == 1:
                 nuevo_correo = input("Ingrese el nuevo correo del cliente: ")
                 cliente.correo_cliente = nuevo_correo
-                print("Correo modificado con éxito... ")
-            elif opcion ==  2:
+            elif opcion == 2:
                 nuevo_telefono = input("Ingrese el nuevo Teléfono del cliente: ")
                 cliente.tel_cliente = nuevo_telefono
-                print("Teléfono modificado con éxito... ")
-                self.guardar_clientes()
-                print("Datos modificados con éxito... ")
+            else:
+                print("Opción inválida.")
+                return
+            self.guardar_clientes()
+            print("Datos modificados y guardados con éxito.")
+        else:
+            print(f"No se encontró un cliente con el NIT: {nit}")
 
     def eliminar_clientes(self, nit_cliente):
         if nit_cliente in self.diccionario_clientes:
             cliente = self.diccionario_clientes[nit_cliente]
             print(f"¿Seguro que quiere eliminar al cliente {cliente.nombre_cliente} con el NIT: {cliente.nit_cliente}?")
-            confirmacion = self.pedir_entero("Ingrese 1 para confirmar o dos para cancelar: ")
+            confirmacion = self.pedir_entero("Ingrese 1 para confirmar o 2 para cancelar: ")
             if confirmacion == 1:
-                del  self.diccionario_clientes[nit_cliente]
+                del self.diccionario_clientes[nit_cliente]
                 self.guardar_clientes()
-                print("Cliente elimindo con éxito... ")
+                print("Cliente eliminado con éxito... ")
             else:
                 print("Eliminación cancelada")
         else:
-            print(f"No se encontro un cliente con el NIT: {nit_cliente}")
+            print(f"No se encontró un cliente con el NIT: {nit_cliente}")
 
 gestion_clientes = GestionClientes()
+
 
 class MenuGestionDeClientes:
     def pedir_entero(self, mensaje):
@@ -216,8 +238,7 @@ class MenuGestionDeClientes:
                             tel_cliente = input("Ingrese el número de teléfono del cliente: ")
                             correo_cliente = input("Ingrese el correo del cliente: ")
                             gestion_clientes.crear_cliente(nit_cliente, nombre_cliente, direccion_cliente, tel_cliente, correo_cliente)
-                            gestion_clientes.guardar_clientes()
-                            print("Cliente credo con éxito ;)")
+                            print("Cliente creado con éxito ;)")
                             break
                 case 2:
                     if not gestion_clientes.diccionario_clientes:
@@ -227,48 +248,48 @@ class MenuGestionDeClientes:
                         lista_clientes = list(gestion_clientes.diccionario_clientes.values())
                         lista_ordenada = gestion_clientes.quicksort_clientes(lista_clientes)
                         for c in lista_ordenada:
-                            print(
-                                f"NIT: {c.nit_cliente} | Nombre: {c.nombre_cliente} | Dirección: {c.direccion_cliente} | Tel: {c.tel_cliente} | Correo: {c.correo_cliente}")
+                            print(f"NIT: {c.nit_cliente} | Nombre: {c.nombre_cliente} | Dirección: {c.direccion_cliente} | Tel: {c.tel_cliente} | Correo: {c.correo_cliente}")
                 case 3:
                     if not gestion_clientes.diccionario_clientes:
-                        print("No hay clientes resgistrados... ")
+                        print("No hay clientes registrados... ")
                     else:
                         print("-----BUSCAR CLIENTE POR NIT-----")
                         buscar_nit = input("Ingrese el nit del cliente: ")
                         encontrado = gestion_clientes.buscar_cliente_por_nit(buscar_nit)
                         if encontrado:
-                            print(f"El cliente con el NIT {encontrado} es {encontrado.nombre_cliente}")
+                            print(f"El cliente con el NIT {encontrado.nit_cliente} es {encontrado.nombre_cliente}")
                         else:
-                            print("Cliente no encontrado... ")
-
+                            print("Cliente no encontrado...")
                 case 4:
-                    print("---MODIFFICAR DATOS--- ")
+                    print("---MODIFICAR DATOS--- ")
                     nit_cliente_modificar = input("Ingrese el NIT del cliente para buscarlo: ")
                     gestion_clientes.modificar_datos_cliente(nit_cliente_modificar)
-
                 case 5:
                     print("---ELIMINAR CLIENTES---")
-                    eliminar = input("Ingrse el NIT del cliente que desea eliminar: ")
+                    eliminar = input("Ingrese el NIT del cliente que desea eliminar: ")
                     gestion_clientes.eliminar_clientes(eliminar)
-                    gestion_clientes.guardar_clientes()
+                case 6:
+                    print("Saliendo del menu de clientes...")
+                case _:
+                    print("Opción inválida, por favor intente nuevamente.")
 
 
 class MenuPrincipal:
     def pedir_entero(self, mensaje):
         while True:
             try:
-                return  int(input(mensaje))
+                return int(input(mensaje))
             except ValueError:
                 print("Error ingrese un NUMERO valido...")
 
     def mostrar_menu_principal(self):
         opcion = 0
-        while opcion !=5:
+        while opcion != 5:
             print("+++Menu General+++")
             print("1. Gestion de productos")
             print("2. Gestion de clientes")
             print("3. Gestion de empleados")
-
+            print("5. Salir")
             opcion = self.pedir_entero("Ingrese su opción: ")
             match opcion:
                 case 1:
@@ -277,8 +298,10 @@ class MenuPrincipal:
                     menu_gestion_clientes.mostrar_menu_gestion_clientes()
                 case 3:
                     menu_gestion_empleados.mostrar_menu_empleados()
-                case 4:
-                    pass
+                case 5:
+                    print("Saliendo del sistema...")
+                case _:
+                    print("Opción inválida, por favor intente nuevamente.")
 
 
 class PuestosDeEmpleado:
@@ -301,15 +324,19 @@ class GestionEmpleados:
         self.diccionario_empleados = {}
         self.cargar_empleados()
 
-
     def cargar_empleados(self):
         try:
             with open("empleados.txt", "r", encoding="utf-8") as archivo:
-                for linea in archivo:
+                for num_linea, linea in enumerate(archivo, start=1):
                     linea = linea.strip()
-                    if linea:
-                        id_empleado, nombre_empleado, id_puesto, direccion_empleado, telefono_empleado, correo_empleado = linea.split(":")
-                        self.diccionario_empleados[id_empleado] = Empleados(id_empleado, nombre_empleado, id_puesto, direccion_empleado, telefono_empleado, correo_empleado)
+                    if not linea:
+                        continue
+                    partes = linea.split(":")
+                    if len(partes) != 6:
+                        print(f"[empleados.txt] Línea {num_linea} inválida (se esperan 6 campos): {linea}")
+                        continue
+                    id_empleado, nombre_empleado, id_puesto, direccion_empleado, telefono_empleado, correo_empleado = partes
+                    self.diccionario_empleados[id_empleado] = Empleados(id_empleado, nombre_empleado, id_puesto, direccion_empleado, telefono_empleado, correo_empleado)
             print("Empleados cargados desde empleados.txt")
         except FileNotFoundError:
             print("No existe el archivo empleados.txt se creará uno al guardar.")
@@ -324,16 +351,16 @@ class GestionEmpleados:
             try:
                 return int(input(mensaje))
             except ValueError:
-                print("Ingrese un NUMERO VALIDO... ")
+                print("Ingrese un NUMERO VALIDO...")
 
     def agregar_puesto_empleado(self, IDpuesto, nombre_puesto):
         self.diccionario_puestos_empleados[IDpuesto] = PuestosDeEmpleado(IDpuesto, nombre_puesto)
-        print("Puesto de empleado agragado con éxito... ")
+        print("Puesto de empleado agregado con éxito... ")
 
     def agregar_empleado(self, IDempledo, nombre_empleado, IDpuesto, direccion_empleado, telefono_empleado, correo_empleado):
         self.diccionario_empleados[IDempledo] = Empleados(IDempledo, nombre_empleado, IDpuesto, direccion_empleado, telefono_empleado, correo_empleado)
         self.guardar_empleados()
-        print("Empleado agregado con éxtio... ")
+        print("Empleado agregado con éxito... ")
 
     def mostrar_empleados_por_puesto(self):
         if not self.diccionario_empleados:
@@ -348,8 +375,7 @@ class GestionEmpleados:
             ]
             if empleados_puesto:
                 for emp in empleados_puesto:
-                    print(
-                        f"   - ID: {emp.id_empleado} | Nombre: {emp.nombre} | Tel: {emp.telefono} | Correo: {emp.correo}")
+                    print(f"   - ID: {emp.id_empleado} | Nombre: {emp.nombre} | Tel: {emp.telefono} | Correo: {emp.correo}")
             else:
                 print("   (No hay empleados en este puesto)")
 
@@ -357,27 +383,22 @@ class GestionEmpleados:
         lista_empleados = list(self.diccionario_empleados.values())
         for i in range(len(lista_empleados)):
             if lista_empleados[i].id_empleado == busco_id_empleado:
-                return  lista_empleados[i]
-        return  None
+                return lista_empleados[i]
+        return None
 
     def eliminar_empleados_por_ID(self, buscar_id_empleado):
-        lista_empleados = list(self.diccionario_empleados.values())
-        for i in range(len(lista_empleados)):
-            if lista_empleados[i].id_empleado == buscar_id_empleado:
-                print(f"Esta seguro que quiere eliminar al empleado {buscar_id_empleado}")
-                confirmacion = self.pedir_entero("Precione 1 para confirmar: "
-                                                 "\nPrecine 2 para cancelar: ")
-                if confirmacion == 1:
-                    del self.diccionario_empleados[buscar_id_empleado]
-                    self.guardar_empleados()
-                    print("Empeado eliminado con éxito... ")
-                elif confirmacion == 2:
-                    print("El empleado no se elimino... ")
-                else:
-                    print("Opción no valida... ")
+        if buscar_id_empleado in self.diccionario_empleados:
+            empleado = self.diccionario_empleados[buscar_id_empleado]
+            print(f"¿Está seguro que quiere eliminar al empleado {empleado.nombre} (ID: {buscar_id_empleado})?")
+            confirmacion = self.pedir_entero("Precione 1 para confirmar:\nPrecione 2 para cancelar: ")
+            if confirmacion == 1:
+                del self.diccionario_empleados[buscar_id_empleado]
+                self.guardar_empleados()
+                print("Empleado eliminado con éxito... ")
             else:
-                print(f"No se encontro ningun empleado con el ID {buscar_id_empleado} ")
-
+                print("El empleado no se eliminó...")
+        else:
+            print(f"No se encontró ningún empleado con el ID {buscar_id_empleado}")
 
 gestion_empleados = GestionEmpleados()
 
@@ -389,7 +410,6 @@ class MenuGestionEmpleados:
             except ValueError:
                 print("Ingrese un NUMERO valido... ")
 
-
     def mostrar_menu_empleados(self):
         opcion = 0
         while opcion != 6:
@@ -398,16 +418,15 @@ class MenuGestionEmpleados:
             print("2. Agregar empleado ")
             print("3. Mostrar lista de empleados por puesto ")
             print("4. Buscar emplado por ID de empleado")
-            print("5. Elimimar empleados")
-            print("6. Salir del menú gestio de empleados ")
-            opcion = self.pedir_entero("Ingerse su opción: ")
+            print("5. Eliminar empleados")
+            print("6. Salir del menú gestion de empleados ")
+            opcion = self.pedir_entero("Ingrese su opción: ")
             match opcion:
                 case 1:
                     print("--- AGREGAR PUESTOS DE TRABAJO ---")
                     id_puesto = input("Ingrese el ID del puesto: ")
                     nombre_puesto = input("Ingrese el nombre del puesto: ")
                     gestion_empleados.agregar_puesto_empleado(id_puesto, nombre_puesto)
-
                 case 2:
                     print("--- AGREGAR EMPLEADO ---")
                     cantidad = self.pedir_entero("Ingrese la cantidad de empleados que desea registrar: ")
@@ -415,7 +434,7 @@ class MenuGestionEmpleados:
                         print(f"---Ingrese el empleado #{i+1} ---")
                         id_empleado = input("Ingrese el ID del empleado: ")
                         if id_empleado in gestion_empleados.diccionario_empleados:
-                            print("Este ID ya existe, inntente de nuevo... ")
+                            print("Este ID ya existe, intente de nuevo... ")
                             continue
                         nombre_empleado = input("Ingrese el nombre del empleado: ")
                         id_puesto = input("Ingrese el ID del puesto: ")
@@ -423,12 +442,10 @@ class MenuGestionEmpleados:
                         tel_empleado = input("Ingrese el número de teléfono del empleado: ")
                         correo_empleado = input("Ingrese el correo del empleado: ")
                         gestion_empleados.agregar_empleado(id_empleado, nombre_empleado, id_puesto, direccion_empleado, tel_empleado, correo_empleado)
-                        print("Empleado ingresado con éxito... ")
-
                 case 3:
                     gestion_empleados.mostrar_empleados_por_puesto()
                 case 4:
-                    buscar_id = input("Ingrese el ID del enpleado a bucar: ")
+                    buscar_id = input("Ingrese el ID del empleado a buscar: ")
                     empleado = gestion_empleados.buscar_empleado_por_ID(buscar_id)
                     if empleado:
                         puesto = gestion_empleados.diccionario_puestos_empleados.get(empleado.id_puesto)
@@ -457,11 +474,11 @@ class MenuGestionProductos:
 
     def mostrar_menu_productos(self):
         opcion = 0
-        while opcion != 7:
+        while opcion != 8:
             print("+++ MENU GESTION DE PRODUCTOS +++")
             print("1. Agregar categorias de productos")
             print("2. Agregar producto")
-            print("3. Mostar lista de categorias")
+            print("3. Mostrar lista de categorias")
             print("4. Mostrar lista de productos")
             print("5. Buscar producto por codigo")
             print("6. Eliminar productos")
@@ -473,19 +490,19 @@ class MenuGestionProductos:
                     id_categoria = input("Ingrese el ID de la categoria: ")
                     nombre_categoria = input("Ingrese el nombre de la categoria: ")
                     gestion_productos.agregar_categoria(id_categoria, nombre_categoria)
-
                 case 2:
                     id_producto = input("Ingrese el ID del producto: ")
+                    if id_producto in gestion_productos.diccionario_productos:
+                        print("Este ID de producto ya existe.")
+                        continue
                     nombre_producto = input("Ingrese el nombre del producto: ")
                     precio_producto = float(input("Ingrese el precio del producto: Q"))
                     id_cat = input("Ingrese el ID de la categoria: ")
                     if id_cat not in gestion_productos.diccionario_categorias:
-                        print("ERROR, primero agrege la categoria del producto...")
+                        print("ERROR, primero agregue la categoria del producto...")
                     else:
                         stock = int(input("Ingrese el stock inicial: "))
                         gestion_productos.agregar_producto(id_producto, nombre_producto, precio_producto, id_cat, stock=stock)
-                        gestion_productos.guardar_productos()
-                        print("Producto ingresado y guardado con éxito... ")
                 case 3:
                     if not gestion_productos.diccionario_categorias:
                         print("No hay categorias registradas... ")
@@ -494,7 +511,7 @@ class MenuGestionProductos:
                         cont = 1
                         for cat in gestion_productos.diccionario_categorias.values():
                             print(f"{cont}- ID de categoria: {cat.IDcategoria}, Nombre de categoria: {cat.nombre_categoria}")
-                            cont +=1
+                            cont += 1
                 case 4:
                     if not gestion_productos.diccionario_productos:
                         print("No hay productos ingresados... ")
@@ -512,23 +529,20 @@ class MenuGestionProductos:
                 case 5:
                     print("------BUSCAR PRODUCTO POR CODIGO-----")
                     buscar_codigo = input("Ingrese el codigo que desea buscar: ")
-                    encontrado =  gestion_productos.buscar_producto_por_IDproducto(buscar_codigo)
+                    encontrado = gestion_productos.buscar_producto_por_IDproducto(buscar_codigo)
                     if encontrado:
-                        print(f"Producto encontrado: {encontrado.IDproducto} |Nombre del producto: {encontrado.nombre_producto} | Precio: {encontrado.precio} | Stock: {encontrado.stock} ")
+                        print(f"Producto encontrado: {encontrado.IDproducto} | Nombre: {encontrado.nombre_producto} | Precio: {encontrado.precio} | Stock: {encontrado.stock}")
                     else:
                         print("Producto no encontrado... ")
                 case 6:
                     print("------ELIMINAR PRODUCTOS----")
                     eliminar_producto = input("Ingrese el ID del producto a eliminar: ")
                     gestion_productos.eliminar_producto(eliminar_producto)
-                    gestion_productos.guardar_productos()
-                    print("Producto eliminado con éxito... ")
                 case 7:
                     modificar_id = input("Ingrese el ID del producto que desea modificar: ")
                     nuevo_precio = float(input("Ingrese el nuevo precio: "))
                     nuevo_stock = int(input("Ingrese el nuevo stock: "))
                     gestion_productos.modificar_producto(modificar_id, nuevo_precio, nuevo_stock)
-                    gestion_productos.guardar_productos()
                 case 8:
                     print("Saliendo del menú de gestion de productos... ")
                 case _:
@@ -539,6 +553,5 @@ menu_productos = MenuGestionProductos()
 menu_gestion_clientes = MenuGestionDeClientes()
 menu_gestion_empleados = MenuGestionEmpleados()
 menu_principal = MenuPrincipal()
-
 
 menu_principal.mostrar_menu_principal()
