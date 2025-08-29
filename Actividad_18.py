@@ -1,5 +1,3 @@
-from http.cookiejar import offset_from_tz_string
-
 print("Actividad 18")
 
 class Categoria:
@@ -19,50 +17,50 @@ class Producto:
 
 class GestionProductos:
     def __init__(self):
-        self.categorias = {}
-        self.productos = {}
+        self.diccionario_categorias = {}
+        self.diccionario_productos = {}
         self.cargar_productos()
 
-    def caragar_productos(self):
+    def cargar_productos(self):
         try:
             with open("productos.txt", "r", encoding="utf-8") as archivo:
                 for linea in archivo:
                     linea = linea.strip()
                     if linea:
                         id_producto, nombre, precio, id_categoria, stock = linea.split(":")
-                        self.productos[id_producto] = Producto(id_producto, nombre, float(precio), id_categoria, stock=int(stock))
+                        self.diccionario_productos[id_producto] = Producto(id_producto, nombre, float(precio), id_categoria, stock=int(stock))
             print("Productos cargados desde productos.txt ")
         except FileNotFoundError:
             print("No existe el archivo productos.txt, se creará al guardar")
 
     def guardar_productos(self):
-        with open("productos.txt", "r", encoding="utf-8") as archivo:
-            for p in self.productos.values():
+        with open("productos.txt", "w", encoding="utf-8") as archivo:
+            for p in self.diccionario_productos.values():
                 archivo.write(f"{p.IDproducto}:{p.nombre_producto}:{p.precio}:{p.IDcategoria}:{p.stock}\n")
 
     def agregar_categoria(self, IDcategoria, nombre_categoria):
-        self.categorias[IDcategoria] = Categoria(IDcategoria, nombre_categoria)
+        self.diccionario_categorias[IDcategoria] = Categoria(IDcategoria, nombre_categoria)
         print("Categoria agregada con éxito")
 
     def agregar_producto(self, id_producto, nombre_producto, precio, id_categoria, stock):
-        self.productos[id_producto] = Producto(id_producto, nombre_producto, precio, id_categoria, stock=stock)
+        self.diccionario_productos[id_producto] = Producto(id_producto, nombre_producto, precio, id_categoria, stock=stock)
         print("Producto ingresado con éxito... ")
 
     def buscar_producto_por_IDproducto(self, IDbuscado):
-        lista = list(self.productos.values())
+        lista = list(self.diccionario_productos.values())
         for i in range(len(lista)):
             if lista[i].IDproducto == IDbuscado:
                 return  lista[i]
         return  None
 
     def eliminar_producto(self, IDbuscado):
-        if IDbuscado in self.productos:
+        if IDbuscado in self.diccionario_productos:
             print(f"¿Seguro que quiere eliminar el producto {IDbuscado}?")
             while True:
                 try:
                     confirmacion = int(input("Presione 1 para confirmar la eliminación\nPresione 2 para cancelar: "))
                     if confirmacion == 1:
-                        del self.productos[IDbuscado]
+                        del self.diccionario_productos[IDbuscado]
                         print(f"Producto con la ID: {IDbuscado} se ha eliminado con éxito.")
                         break
                     elif confirmacion == 2:
@@ -75,8 +73,23 @@ class GestionProductos:
         else:
             print(f"No se encontró ningún producto con ID {IDbuscado}.")
 
+    def modificar_producto(self, id_modificar, nuevo_precio=None, nuevo_stock= None):
+        lista_productos = list(self.diccionario_productos.values())
+        for i in range(len(lista_productos)):
+            if lista_productos[i].IDproducto == id_modificar:
+                if nuevo_precio is not None:
+                    lista_productos[i].precio =nuevo_precio
+                if nuevo_stock is not None:
+                    lista_productos[i].stock = nuevo_stock
+                self.diccionario_productos[id_modificar] = lista_productos[i]
+                print(f"Producto con ID {id_modificar} modificado con éxito.")
+                return  lista_productos[i]
+        print(f"No se encontro un producto con ID {id_modificar}. ")
+        return  None
 
-gestion = GestionProductos()
+
+
+gestion_productos = GestionProductos()
 
 
 
@@ -203,6 +216,7 @@ class MenuGestionDeClientes:
                             tel_cliente = input("Ingrese el número de teléfono del cliente: ")
                             correo_cliente = input("Ingrese el correo del cliente: ")
                             gestion_clientes.crear_cliente(nit_cliente, nombre_cliente, direccion_cliente, tel_cliente, correo_cliente)
+                            gestion_clientes.guardar_clientes()
                             print("Cliente credo con éxito ;)")
                             break
                 case 2:
@@ -236,6 +250,7 @@ class MenuGestionDeClientes:
                     print("---ELIMINAR CLIENTES---")
                     eliminar = input("Ingrse el NIT del cliente que desea eliminar: ")
                     gestion_clientes.eliminar_clientes(eliminar)
+                    gestion_clientes.guardar_clientes()
 
 
 class MenuPrincipal:
@@ -275,7 +290,7 @@ class Empleados:
     def __init__(self, id_empleado, nombre, id_puesto, direccion, telefono, correo):
         self.id_empleado = id_empleado
         self.nombre = nombre
-        self.IDpuesto = id_puesto
+        self.id_puesto = id_puesto
         self.direccion = direccion
         self.telefono = telefono
         self.correo = correo
@@ -302,7 +317,7 @@ class GestionEmpleados:
     def guardar_empleados(self):
         with open("empleados.txt", "w", encoding="utf-8") as archivo:
             for e in self.diccionario_empleados.values():
-                archivo.write(f"{e.id_empleado}:{e.nombre_empleado}:{e.id_puesto}:{e.direccion_empleado}:{e.telefono_empleado}:{e.correo_empleado}\n")
+                archivo.write(f"{e.id_empleado}:{e.nombre}:{e.id_puesto}:{e.direccion}:{e.telefono}:{e.correo}\n")
 
     def pedir_entero(self, mensaje):
         while True:
@@ -354,6 +369,7 @@ class GestionEmpleados:
                                                  "\nPrecine 2 para cancelar: ")
                 if confirmacion == 1:
                     del self.diccionario_empleados[buscar_id_empleado]
+                    self.guardar_empleados()
                     print("Empeado eliminado con éxito... ")
                 elif confirmacion == 2:
                     print("El empleado no se elimino... ")
@@ -449,51 +465,54 @@ class MenuGestionProductos:
             print("4. Mostrar lista de productos")
             print("5. Buscar producto por codigo")
             print("6. Eliminar productos")
-            print("7. Salir del menú gestion de productos ")
+            print("7. Actualizar productos")
+            print("8. Salir del menú gestion de productos ")
             opcion = self.pedir_entero("Ingrese su opción: ")
             match opcion:
                 case 1:
                     id_categoria = input("Ingrese el ID de la categoria: ")
                     nombre_categoria = input("Ingrese el nombre de la categoria: ")
-                    gestion.agregar_categoria(id_categoria, nombre_categoria)
+                    gestion_productos.agregar_categoria(id_categoria, nombre_categoria)
 
                 case 2:
                     id_producto = input("Ingrese el ID del producto: ")
                     nombre_producto = input("Ingrese el nombre del producto: ")
                     precio_producto = float(input("Ingrese el precio del producto: Q"))
                     id_cat = input("Ingrese el ID de la categoria: ")
-                    if id_cat not in gestion.categorias:
+                    if id_cat not in gestion_productos.diccionario_categorias:
                         print("ERROR, primero agrege la categoria del producto...")
                     else:
                         stock = int(input("Ingrese el stock inicial: "))
-                        gestion.agregar_producto(id_producto, nombre_producto, precio_producto, id_cat, stock=stock)
+                        gestion_productos.agregar_producto(id_producto, nombre_producto, precio_producto, id_cat, stock=stock)
+                        gestion_productos.guardar_productos()
+                        print("Producto ingresado y guardado con éxito... ")
                 case 3:
-                    if not gestion.categorias:
+                    if not gestion_productos.diccionario_categorias:
                         print("No hay categorias registradas... ")
                     else:
                         print("-----LISTA DE CATEGORIAS-----")
                         cont = 1
-                        for cat in gestion.categorias.values():
+                        for cat in gestion_productos.diccionario_categorias.values():
                             print(f"{cont}- ID de categoria: {cat.IDcategoria}, Nombre de categoria: {cat.nombre_categoria}")
                             cont +=1
                 case 4:
-                    if not gestion.productos:
+                    if not gestion_productos.diccionario_productos:
                         print("No hay productos ingresados... ")
                     else:
                         print("-----LISTA DE PRODUCTOS POR CATEGORIA------")
-                        for cat in gestion.categorias.values():
+                        for cat in gestion_productos.diccionario_categorias.values():
                             print(f"\n>> Categoría: {cat.nombre_categoria} ({cat.IDcategoria})")
                             encontrados = False
-                            for p in gestion.productos.values():
+                            for p in gestion_productos.diccionario_productos.values():
                                 if p.IDcategoria == cat.IDcategoria:
                                     print(f"   - [{p.IDproducto}] {p.nombre_producto} | Precio: Q{p.precio} | Stock: {p.stock}")
                                     encontrados = True
-                                if not encontrados:
-                                    print("No hay productos en esta categoria... ")
+                            if not encontrados:
+                                print("No hay productos en esta categoria... ")
                 case 5:
                     print("------BUSCAR PRODUCTO POR CODIGO-----")
                     buscar_codigo = input("Ingrese el codigo que desea buscar: ")
-                    encontrado =  gestion.buscar_producto_por_IDproducto(buscar_codigo)
+                    encontrado =  gestion_productos.buscar_producto_por_IDproducto(buscar_codigo)
                     if encontrado:
                         print(f"Producto encontrado: {encontrado.IDproducto} |Nombre del producto: {encontrado.nombre_producto} | Precio: {encontrado.precio} | Stock: {encontrado.stock} ")
                     else:
@@ -501,9 +520,17 @@ class MenuGestionProductos:
                 case 6:
                     print("------ELIMINAR PRODUCTOS----")
                     eliminar_producto = input("Ingrese el ID del producto a eliminar: ")
-                    gestion.eliminar_producto(eliminar_producto)
+                    gestion_productos.eliminar_producto(eliminar_producto)
+                    gestion_productos.guardar_productos()
+                    print("Producto eliminado con éxito... ")
                 case 7:
-                    print("Saliedo del menu de Gestión... ")
+                    modificar_id = input("Ingrese el ID del producto que desea modificar: ")
+                    nuevo_precio = float(input("Ingrese el nuevo precio: "))
+                    nuevo_stock = int(input("Ingrese el nuevo stock: "))
+                    gestion_productos.modificar_producto(modificar_id, nuevo_precio, nuevo_stock)
+                    gestion_productos.guardar_productos()
+                case 8:
+                    print("Saliendo del menú de gestion de productos... ")
                 case _:
                     print("Opción inválida, por favor intente nuevamente.")
 
