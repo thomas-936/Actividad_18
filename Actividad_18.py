@@ -19,7 +19,25 @@ class GestionProductos:
     def __init__(self):
         self.diccionario_categorias = {}
         self.diccionario_productos = {}
+        self.cargar_categorias()
         self.cargar_productos()
+
+    def cargar_categorias(self):
+        try:
+            with open("categorias.txt", "r", encoding="utf-8") as archivo:
+                for linea in archivo:
+                    linea = linea.strip()
+                    if not linea:
+                        continue
+                    id_categoria, nombre_categoria = linea.split(":")
+                    self.diccionario_categorias[id_categoria] = Categoria(id_categoria, nombre_categoria)
+        except FileNotFoundError:
+            print("No existe el archivo categorias.txt, se creara uno al guardar... ")
+
+    def guardar_categorias(self):
+        with open("categorias.txt", "w", encoding="utf-8") as archivo:
+            for c in self.diccionario_categorias.values():
+                archivo.write(f"{c.IDcategoria}:{c.nombre_categoria}\n")
 
     def cargar_productos(self):
         try:
@@ -284,12 +302,12 @@ class MenuPrincipal:
 
     def mostrar_menu_principal(self):
         opcion = 0
-        while opcion != 5:
+        while opcion != 4:
             print("+++Menu General+++")
             print("1. Gestion de productos")
             print("2. Gestion de clientes")
             print("3. Gestion de empleados")
-            print("5. Salir")
+            print("4. Salir")
             opcion = self.pedir_entero("Ingrese su opción: ")
             match opcion:
                 case 1:
@@ -298,7 +316,7 @@ class MenuPrincipal:
                     menu_gestion_clientes.mostrar_menu_gestion_clientes()
                 case 3:
                     menu_gestion_empleados.mostrar_menu_empleados()
-                case 5:
+                case 4:
                     print("Saliendo del sistema...")
                 case _:
                     print("Opción inválida, por favor intente nuevamente.")
@@ -490,6 +508,7 @@ class MenuGestionProductos:
                     id_categoria = input("Ingrese el ID de la categoria: ")
                     nombre_categoria = input("Ingrese el nombre de la categoria: ")
                     gestion_productos.agregar_categoria(id_categoria, nombre_categoria)
+                    gestion_productos.guardar_categorias()
                 case 2:
                     id_producto = input("Ingrese el ID del producto: ")
                     if id_producto in gestion_productos.diccionario_productos:
