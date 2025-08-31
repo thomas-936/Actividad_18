@@ -123,6 +123,155 @@ class GestionProductos:
 
 gestion_productos = GestionProductos()
 
+class Proveedores:
+    def __init__(self, nit_empresa, nombre_empresa, direccion_empresa, telefono_empresa, correo_empresa):
+        self.nit_empresa = nit_empresa
+        self.nombre_empresa = nombre_empresa
+        self.direccion_empresa = direccion_empresa
+        self.telefono_empresa = telefono_empresa
+        self.correo_empresa = correo_empresa
+
+class GestionProveedores:
+    def __init__(self):
+        self.diccionario_proveedores = {}
+        self.cargar_proveedores()
+
+    def cargar_proveedores(self):
+        try:
+            with open("proveedores.txt", "r", encoding="utf-8") as archivo:
+                for linea in archivo:
+                    linea = linea.strip()
+                    if not linea.strip(":"):
+                        continue
+                    nit_empresa, nombre_empresa, direccion_emrpresa, telefono_empresa, correo_emrpesa = linea.split(":")
+                    self.diccionario_proveedores[nit_empresa] = Proveedores(nit_empresa, nombre_empresa, direccion_emrpresa, telefono_empresa, correo_emrpesa)
+        except FileNotFoundError:
+            print("No existe el archivo proveedodres.txt, se creará a guardar")
+
+    def guardar_proveedores(self):
+        with open("proveedores.txt", "w", encoding="utf-8") as archivo:
+            for proveedores in self.diccionario_proveedores.values():
+                archivo.write(f"{proveedores.nit_empresa}:{proveedores.nombre_empresa}:{proveedores.direccion_empresa}:{proveedores.telefono_empresa}:{proveedores.correo_empresa}")
+
+    def pedir_entero(self, mensaje):
+        while True:
+            try:
+                return int(input(mensaje))
+            except ValueError:
+                print("Ingrese un NUMERO valido... ")
+
+    def crar_proveedor(self, nit_empresa, nombre_empresa, direccion_empresa, telefono_emrpesa, correo_empresa):
+        self.diccionario_proveedores[nit_empresa] = Proveedores(nit_empresa, nombre_empresa, direccion_empresa, telefono_emrpesa, correo_empresa)
+        self.guardar_proveedores()
+        print(f"El proveedor {nombre_empresa}, fue agregado y guardado correctamente... ")
+
+    def buscar_proveedor(self, busco_nit_empresa):
+        lista_proveedores = list(self.diccionario_proveedores.values())
+        for i in range(len(lista_proveedores)):
+            lista_proveedores[i].nit_empresa = busco_nit_empresa
+            return lista_proveedores[i]
+        return  None
+
+    def modificar_datos_proveedor(self, nit_proveedor):
+        if nit_proveedor in self.diccionario_proveedores:
+            proveedor = self.diccionario_proveedores[nit_proveedor]
+            print(f"Cliente encontrado {proveedor.nombre_proveedor}")
+            print("¿Que datos desea modificar?: ")
+            print("1. Correo")
+            print("2. Teléfono")
+            opcion = self.pedir_entero("")
+            if opcion == 1:
+                nuevo_correo = input("Ingrese el nuevo correo del proveedor: ")
+                proveedor.correo_emrpresa = nuevo_correo
+            if opcion == 2:
+                nuevo_telefono = input("Ingrese el nuevo teléfono del proveedor: ")
+                proveedor.telfono_empresa = nuevo_telefono
+            else:
+                print("Opción invalida... ")
+                return
+            self.guardar_proveedores()
+            print("Proveedor actualizado correctamente")
+        else:
+            print(f"El {nit_proveedor} no fue encontrado")
+
+    def eliminar_proveedor(self, eliminar_nit_proveedor):
+        if eliminar_nit_proveedor in self.diccionario_proveedores:
+            eliminar_proveedor = self.diccionario_proveedores[eliminar_nit_proveedor]
+            print(f"Seguro que quiere eliminar al proveedor {eliminar_proveedor.nombre_empresa} con el NIT {eliminar_nit_proveedor}? ")
+            print("Precione 1 para confirmar: ")
+            print("Precione 2 para cancelar: ")
+            confirmacion = self.pedir_entero("Ingrese su opción: ")
+            if confirmacion == 1:
+                del self.diccionario_proveedores[eliminar_nit_proveedor]
+                self.guardar_proveedores()
+                print("Cliente eliminado con éxito... ")
+            else:
+                print("Eliminación cancelada... ")
+        else:
+            print(f"No se encontro al proveedor con el NIT: {eliminar_nit_proveedor}")
+
+    def quicksort_proveedores(self, lista_proveedores):
+        if len(lista_proveedores) <= 1:
+            return lista_proveedores
+        pivot = lista_proveedores[0]
+        menores = [p for p in lista_proveedores[1:] if p.nombre_empresa.lower() <= pivot.nombre_empresa.lower()]
+        mayores = [p for p in lista_proveedores[1:] if p.nombre_empresa.lower() > pivot.nombre_empresa.lower()]
+        return self.quicksort_proveedores(menores) + [pivot] + self.quicksort_proveedores(mayores)
+
+    def mostar_proveedores_ordenados(self):
+        lista = list(self.diccionario_proveedores.values())
+        ordenados = self.quicksort_proveedores(lista)
+        print(f"Lista de proveedores ordenados por nombre: ")
+        for p in ordenados:
+            print(f"{p.nit_empresa} | {p.nombre_empresa} | {p.direccion_empresa} | {p.telefono_empresa} | {p.correo_empresa}")
+
+gestion_proveedores = GestionProveedores()
+
+class MenuGestionProveedores:
+    def pedir_entero(self, mensaje):
+        while True:
+            try:
+                return  int(input(mensaje))
+            except ValueError:
+                print("Ingrse un  NUMERO valido")
+
+    def mostrar_menu_gestion_proveedores(self):
+        opcion = 0
+        while opcion != 5:
+            print("MENU GESTION PROVEEDORES")
+            print("1. Agregar proveedores")
+            print("2. Mostra provedores")
+            print("3. Modificar proveedor")
+            print("4. Buscar proveedores")
+            print("5. Eliminar proveedor")
+            opcion = self.pedir_entero("Ingerese su opción: ")
+            match opcion:
+                case 1:
+                    cantidad = self.pedir_entero("¿Cuantos proveedores desea ingrasar?: ")
+                    for i in range(cantidad):
+                        print(f"f\n Ingrese proveedor {i+1}: ")
+                        while True:
+                            nit_proveedor = input("Ingrese el nit del proveedor: ")
+                            if nit_proveedor in gestion_proveedores.diccionario_proveedores:
+                                print(f"El nit {nit_proveedor} ya existe en el sistema...")
+                            else:
+                                break
+                        nombre_proveedor = input("Ingrese el nombre del proveedor: ")
+                        direccion_proveedor = input("Ingrese la direección del proveedor: ")
+                        tel_proveedor = input("Ingrese el teléfono del proveedor: ")
+                        correo_proveedor = input("Ingrese el correo del proveedor: ")
+                        gestion_proveedores.crar_proveedor(nit_proveedor, nombre_proveedor, direccion_proveedor, tel_proveedor, correo_proveedor)
+                        print("Proveedor agregado con éxito...")
+                case 2:
+                    gestion_proveedores.mostar_proveedores_ordenados()
+                case 3:
+                    print("+++MODIFICAR PROVEEDOR+++")
+                    nit_proveedor_modifcar = input("Ingrese el Nit del proveedor: ")
+                    if nit_proveedor_modifcar in gestion_proveedores.diccionario_proveedores:
+                        gestion_proveedores.modificar_datos_proveedor(nit_proveedor_modifcar)
+                    else:
+                        print(f"No se encontro un proveedor con el Nit {nit_proveedor_modifcar}")
+
 
 class Clientes:
     def __init__(self, nit_cliente, nombre_cliente, direccion_cliente, tel_cliente, correo_cliente):
