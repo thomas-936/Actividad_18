@@ -1,5 +1,3 @@
-from multiprocessing.connection import deliver_challenge
-
 print("Actividad 18")
 from  datetime import  datetime
 class Categoria:
@@ -729,6 +727,15 @@ class MenuGestionProductos:
                 case _:
                     print("Opción inválida, por favor intente nuevamente.")
 
+class DetealleDeVentas:
+    def __init__(self, id_detalle, id_venta, id_producto, cantidad, subtotal, stock_actual):
+        self.id_detalle = id_detalle
+        self.id_venta = id_venta
+        self.id_producto = id_producto
+        self.cantidad = cantidad
+        self.subtotal = subtotal
+        self.stock_actual = stock_actual
+
 class Ventas:
     def __init__(self, id_venta, id_empleado, nit_cliente, id_producto, contidad, total, fecha):
         self.id_venta = id_venta
@@ -738,11 +745,40 @@ class Ventas:
         self.contidad = contidad
         self.total = total
         self.fecha = fecha
+        self.lista_detalles_de_venta = []
 
 class GestionVentas:
     def __init__(self):
         self.diccionario_ventas = {}
+        self.diccionario_detalles_ventas = {}
         self.cargar_ventas()
+        self.cargar_detalles()
+
+    def cargar_detalles(self):
+        try:
+            with open("detalles_ventas.txt", "r", encoding="utf-8") as archivo:
+                for num_linea, linea in enumerate(archivo, start=1):
+                    linea = linea.strip()
+                    if linea:
+                        partes = linea.split(":")
+                        if len(partes) != 6:
+                            print(f"Línea {num_linea} inválida en detalles_ventas.txt: {linea}")
+                            continue
+                        id_detalle, id_venta, id_producto, cantidad, subtotal, stock_actual = partes
+                        try:
+                            self.diccionario_detalles_ventas[id_detalle] = DetealleDeVentas(
+                                id_detalle=id_detalle,
+                                id_venta=id_venta,
+                                id_producto=id_producto,
+                                cantidad=int(cantidad),
+                                subtotal=float(subtotal),
+                                stock_actual=int(stock_actual)
+                            )
+                        except ValueError:
+                            print(f"Error de conversión en la línea {num_linea}: {linea}")
+            print("Detalles de ventas importados desde detalles_ventas.txt")
+        except FileNotFoundError:
+            print("No existe el archivo detalles_ventas.txt, se creará uno al guardar.")
 
     def cargar_ventas(self):
         try:
@@ -762,6 +798,22 @@ class GestionVentas:
             print("Ventas importadas desde ventas.txt")
         except FileNotFoundError:
             print("No existe el arhivo ventas.txt, se creara uno al guardar.")
+
+    def guardar_detalles(self):
+        with open("detalles_ventas.txt", "w", encoding="utf-8") as archivo:
+            for id_detalle, detalle in self.diccionario_detalles_ventas.items():
+                archivo.write(f"{detalle.id_detalle}:{detalle.id_venta}:{detalle.id_producto}:"
+                              f"{detalle.cantidad}:{detalle.subtotal}:{detalle.stock_actual}\n")
+        print("Detalles de ventas guardados en detalles_ventas.txt")
+
+    def generar_id_detalle(self):
+        if not self.diccionario_detalles_ventas:
+            return "D1"
+        else:
+            ultimo_id = max(self.diccionario_detalles_ventas.keys())
+            numero = int(ultimo_id[1:])
+            nuevo_numero = numero + 1
+            return f"D{nuevo_numero:04d}"
 
     def guardar_venta(self):
         with open("ventas.txt", "w", encoding="utf-8") as archivo:
@@ -830,11 +882,17 @@ class MenuGestionVentas:
     def mostrar_menu_gestion_ventas(self):
         opcion = 0
         while opcion != 5:
-            print("MENU DE GESTION DE VENTAS")
+            print("\n===MENU DE GESTION DE VENTAS===")
             print("1. Realizar una venta")
             print("2. Mostrar todas las ventas")
             print("3. Mostrar las ventas por categoria")
             print("4. Buscar ventas realizadas")
+            print("5. Salir del menú de gestion de ventas")
+            opcion = self.pedir_entero("Ingrese su opción: ")
+            match opcion:
+                case 1:
+                    pass
+
 
 
 menu_productos = MenuGestionProductos()
