@@ -1,5 +1,7 @@
-print("Actividad 18")
+from multiprocessing.connection import deliver_challenge
 
+print("Actividad 18")
+from  datetime import  datetime
 class Categoria:
     def __init__(self, IDcategoria, nombre_categoria):
         self.IDcategoria = IDcategoria
@@ -459,12 +461,13 @@ class MenuPrincipal:
 
     def mostrar_menu_principal(self):
         opcion = 0
-        while opcion != 4:
+        while opcion != 5:
             print("+++Menu General+++")
             print("1. Gestion de productos")
             print("2. Gestion de clientes")
             print("3. Gestion de empleados")
-            print("4. Salir")
+            print("4. Gestion de proveedores")
+            print("5. Salir del programa")
             opcion = self.pedir_entero("Ingrese su opción: ")
             match opcion:
                 case 1:
@@ -474,7 +477,9 @@ class MenuPrincipal:
                 case 3:
                     menu_gestion_empleados.mostrar_menu_empleados()
                 case 4:
-                    print("Saliendo del sistema...")
+                    menu_gestion_proveedores.mostrar_menu_gestion_proveedores()
+                case 5:
+                    print("Saliendo del programa... ")
                 case _:
                     print("Opción inválida, por favor intente nuevamente.")
 
@@ -724,10 +729,118 @@ class MenuGestionProductos:
                 case _:
                     print("Opción inválida, por favor intente nuevamente.")
 
+class Ventas:
+    def __init__(self, id_venta, id_empleado, nit_cliente, id_producto, contidad, total, fecha):
+        self.id_venta = id_venta
+        self.id_empleado = id_empleado
+        self.nit_cliente = nit_cliente
+        self.id_producto = id_producto
+        self.contidad = contidad
+        self.total = total
+        self.fecha = fecha
+
+class GestionVentas:
+    def __init__(self):
+        self.diccionario_ventas = {}
+        self.cargar_ventas()
+
+    def cargar_ventas(self):
+        try:
+            with open("ventas.txt", "r", encoding="utf-8") as archivo:
+                for linea in archivo:
+                    linea = linea.strip()
+                    if linea:
+                        id_venta, id_empleado, nit_cliente, id_producto, cantidad, total, fecha = linea.split(":")
+                        self.diccionario_ventas[id_venta] = {
+                            "Empleado": id_empleado,
+                            "Cliente": nit_cliente,
+                            "Producto": id_producto,
+                            "Cantidad": int(cantidad),
+                            "Total": float(total),
+                            "Fecha": fecha
+                        }
+            print("Ventas importadas desde ventas.txt")
+        except FileNotFoundError:
+            print("No existe el arhivo ventas.txt, se creara uno al guardar.")
+
+    def guardar_venta(self):
+        with open("ventas.txt", "w", encoding="utf-8") as archivo:
+            for id_venta, datos in self.diccionario_ventas.items():
+                archivo.write(f"{id_venta}:{datos['Empleado']}:{datos['Cliente']}:{datos['Producto']}:{datos['Cantidad']}:{datos['Total']}:{datos['Fecha']}\n")
+
+    def generar_id_venta(self):
+        if not  self.diccionario_ventas:
+            return "V1"
+        else:
+            ultimo_id = max(self.diccionario_ventas.keys())
+            numero = int(ultimo_id[1:])
+            nuevo_numero = numero+1
+            return f"V{nuevo_numero:04d}"
+
+    def crear_venta(self, id_empleado, nit_cliente, id_producto, cantidad):
+        if id_empleado not in gestion_empleados.diccionario_empleados:
+            print(f"ERROR, el empleado no existe... ")
+            return
+        if nit_cliente not in gestion_clientes.diccionario_clientes:
+            print(f"El cliente con el Nit {nit_cliente} no existe vamos a registrarlo ahora: ")
+            nombre_cliente = input("Ingrese el nombre del cliente: ")
+            direccion_clinte = input("Ingrese la dirección del clinte: ")
+            telefono_cliente = input("Ingrese la direccion del cliente: ")
+            correo_clinte = input("Ingrese el núemero de teléfono del cliente: ")
+            gestion_clientes.diccionario_clientes[nit_cliente] = {
+                "Nombre": nombre_cliente,
+                "Dierección" : direccion_clinte,
+                "Telefono": telefono_cliente,
+                "Correo": correo_clinte
+            }
+            gestion_clientes.guardar_clientes()
+            print(f"Cliente {nombre_cliente} creado exirosamente ;)")
+        if id_producto not in gestion_productos.diccionario_productos:
+            print(f"ERROR, el producto {id_producto} no existe ")
+            return
+        producto = gestion_productos.diccionario_productos[id_producto]
+        if producto.stock < cantidad:
+            print("ERROR, no hay suficunte stock")
+            return
+        total = cantidad * producto.precio
+        id_venta = self.generar_id_venta()
+        fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        self.diccionario_ventas[id_venta] = {
+            "Emplaeado": id_empleado,
+            "Cliente": nit_cliente,
+            "Producto": id_producto,
+            "Cantidad": cantidad,
+            "Total": total,
+            "Fecha": fecha_actual
+        }
+        producto.stock -= cantidad
+        gestion_productos.guardar_productos()
+        self.guardar_venta()
+        print(f"Venta {id_venta} registrada con éxitoen {fecha_actual}. Total: Q{total}")
+
+class MenuGestionVentas:
+    def pedir_entero(self, mensaje):
+        while True:
+            try:
+                return  int(input(mensaje))
+            except ValueError:
+                print("Ingrese un NUMERO valido")
+
+    def mostrar_menu_gestion_ventas(self):
+        opcion = 0
+        while opcion != 5:
+            print("MENU DE GESTION DE VENTAS")
+            print("1. Realizar una venta")
+            print("2. Mostrar todas las ventas")
+            print("3. Mostrar las ventas por categoria")
+            print("4. Buscar ventas realizadas")
+
 
 menu_productos = MenuGestionProductos()
 menu_gestion_clientes = MenuGestionDeClientes()
 menu_gestion_empleados = MenuGestionEmpleados()
+menu_gestion_proveedores = MenuGestionProveedores()
 menu_principal = MenuPrincipal()
 
 menu_principal.mostrar_menu_principal()
