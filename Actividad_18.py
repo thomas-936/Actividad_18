@@ -166,10 +166,10 @@ class GestionProveedores:
         print(f"El proveedor {nombre_empresa}, fue agregado y guardado correctamente... ")
 
     def buscar_proveedor(self, busco_nit_empresa):
-        lista_proveedores = list(self.diccionario_proveedores.values())
-        for i in range(len(lista_proveedores)):
-            lista_proveedores[i].nit_empresa = busco_nit_empresa
-            return lista_proveedores[i]
+        lista_proveedores= list(self.diccionario_proveedores.values())
+        for proveedor in lista_proveedores:
+            if proveedor.nit_empresa == busco_nit_empresa:
+                return proveedor
         return  None
 
     def modificar_datos_proveedor(self, nit_proveedor):
@@ -237,13 +237,14 @@ class MenuGestionProveedores:
 
     def mostrar_menu_gestion_proveedores(self):
         opcion = 0
-        while opcion != 5:
+        while opcion != 6:
             print("MENU GESTION PROVEEDORES")
             print("1. Agregar proveedores")
-            print("2. Mostra provedores")
+            print("2. Mostrar provedores")
             print("3. Modificar proveedor")
             print("4. Buscar proveedores")
             print("5. Eliminar proveedor")
+            print("6. Salir del menú de proveedores")
             opcion = self.pedir_entero("Ingerese su opción: ")
             match opcion:
                 case 1:
@@ -267,10 +268,17 @@ class MenuGestionProveedores:
                 case 3:
                     print("+++MODIFICAR PROVEEDOR+++")
                     nit_proveedor_modifcar = input("Ingrese el Nit del proveedor: ")
-                    if nit_proveedor_modifcar in gestion_proveedores.diccionario_proveedores:
-                        gestion_proveedores.modificar_datos_proveedor(nit_proveedor_modifcar)
-                    else:
-                        print(f"No se encontro un proveedor con el Nit {nit_proveedor_modifcar}")
+                    gestion_proveedores.modificar_datos_proveedor(nit_proveedor_modifcar)
+                case 4:
+                    buco = input("Ingrese el Nit de la empresa que busca: ")
+                    gestion_proveedores.buscar_proveedor(buco)
+                case 5:
+                    eliminar = input("Ingrese el Nit de la empresa que desaea aliminar: ")
+                    gestion_proveedores.eliminar_proveedor(eliminar)
+                case 6:
+                    print("Saliendo del menú de proveedores")
+                case _:
+                    print("Opción inválida, por favor intente nuevamente.")
 
 
 class Clientes:
