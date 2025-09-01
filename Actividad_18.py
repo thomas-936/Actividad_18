@@ -459,13 +459,14 @@ class MenuPrincipal:
 
     def mostrar_menu_principal(self):
         opcion = 0
-        while opcion != 5:
+        while opcion != 6:
             print("+++Menu General+++")
             print("1. Gestion de productos")
             print("2. Gestion de clientes")
             print("3. Gestion de empleados")
             print("4. Gestion de proveedores")
-            print("5. Salir del programa")
+            print("5. Gestion de ventas")
+            print("6. Salir del programa")
             opcion = self.pedir_entero("Ingrese su opción: ")
             match opcion:
                 case 1:
@@ -477,7 +478,9 @@ class MenuPrincipal:
                 case 4:
                     menu_gestion_proveedores.mostrar_menu_gestion_proveedores()
                 case 5:
-                    print("Saliendo del programa... ")
+                    menu_gestion_ventas.mostrar_menu_gestion_ventas()
+                case 6:
+                    print("Saliendo del programa")
                 case _:
                     print("Opción inválida, por favor intente nuevamente.")
 
@@ -915,9 +918,43 @@ class GestionVentas:
         if not ventas_encontradas:
             print(f"No se encontraron ventas en la categoría '{categoria}'.")
 
+    def mostrar_ventas_del_dia(self):
+        fecha_hoy = datetime.now().strftime("%Y-%m-%d")
+        ventas_encontradas = False
+        print(f"\n=== VENTAS DEL DÍA {fecha_hoy} ===")
+        for id_venta, datos in self.diccionario_ventas.items():
+            # la fecha en ventas es "YYYY-MM-DD HH:MM:SS"
+            if datos["Fecha"].startswith(fecha_hoy):
+                ventas_encontradas = True
+                print(f"\nVenta: {id_venta}")
+                print(f"  Empleado: {datos['Empleado']}")
+                print(f"  Cliente (NIT): {datos['Cliente']}")
+                print(f"  Producto: {datos['Producto']}")
+                print(f"  Cantidad: {datos['Cantidad']}")
+                print(f"  Total: Q{datos['Total']}")
+                print(f"  Fecha: {datos['Fecha']}")
+        if not ventas_encontradas:
+            print("Hoy no se han realizado ventas.")
+
+    def buscar_ventas(self, criterio):
+        print(f"\n=== RESULTADOS DE LA BÚSQUEDA: {criterio} ===")
+        ventas_encontradas = False
+        for id_venta, datos in self.diccionario_ventas.items():
+            if (criterio.lower() in id_venta.lower() or
+                    criterio.lower() in datos["Cliente"].lower() or
+                    criterio.lower() in datos["Producto"].lower()):
+                ventas_encontradas = True
+                print(f"\nVenta: {id_venta}")
+                print(f"  Empleado: {datos['Empleado']}")
+                print(f"  Cliente (NIT): {datos['Cliente']}")
+                print(f"  Producto: {datos['Producto']}")
+                print(f"  Cantidad: {datos['Cantidad']}")
+                print(f"  Total: Q{datos['Total']}")
+                print(f"  Fecha: {datos['Fecha']}")
+            if not ventas_encontradas:
+                print("No se encontraron ventas con ese criterio.")
 
 gestion_ventas = GestionVentas()
-
 
 class MenuGestionVentas:
     def pedir_entero(self, mensaje):
@@ -929,13 +966,14 @@ class MenuGestionVentas:
 
     def mostrar_menu_gestion_ventas(self):
         opcion = 0
-        while opcion != 5:
+        while opcion != 6:
             print("\n===MENU DE GESTION DE VENTAS===")
             print("1. Realizar una venta")
             print("2. Mostrar todas las ventas")
             print("3. Mostrar las ventas por categoria")
-            print("4. Buscar ventas realizadas")
-            print("5. Salir del menú de gestion de ventas")
+            print("4. Mostrar ventas realizadas en el dia")
+            print("5. Buscar ventas realizadas")
+            print("6. Salir del menú de gestion de ventas")
             opcion = self.pedir_entero("Ingrese su opción: ")
             match opcion:
                 case 1:
@@ -950,6 +988,14 @@ class MenuGestionVentas:
                 case 3:
                     categoria = input("Ingrese la categoria que desea consultar: ")
                     gestion_ventas.mostrar_ventas_por_categoria(categoria)
+                case 4:
+                    gestion_ventas.mostrar_ventas_del_dia()
+                case 5:
+                    criterio = input("Ingrese el ID de venta, NIT del cliente o ID del producto a buscar: ")
+                    gestion_ventas.buscar_ventas(criterio)
+                case 6:
+                    print("Saliedo del menú de gestion de ventas...")
+
 
 
 
@@ -957,6 +1003,7 @@ menu_productos = MenuGestionProductos()
 menu_gestion_clientes = MenuGestionDeClientes()
 menu_gestion_empleados = MenuGestionEmpleados()
 menu_gestion_proveedores = MenuGestionProveedores()
+menu_gestion_ventas = MenuGestionVentas()
 menu_principal = MenuPrincipal()
 
 menu_principal.mostrar_menu_principal()
