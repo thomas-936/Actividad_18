@@ -511,6 +511,28 @@ class GestionEmpleados:
         self.diccionario_puestos_empleados = {}
         self.diccionario_empleados = {}
         self.cargar_empleados()
+        self.cargar_puestos()
+
+    def cargar_puestos(self):
+        try:
+            with open("puestos.txt", "r", encoding="utf-8") as archivo:
+                for linea in archivo:
+                    linea = linea.strip()
+                    if not linea:
+                        continue
+                    partes = linea.split(":")
+                    if len(partes) != 2:
+                        continue
+                    id_puesto, nombre_puesto = partes
+                    self.diccionario_puestos_empleados[id_puesto] = PuestosDeEmpleado(id_puesto, nombre_puesto)
+            print("Puestos cargados desde puestos.txt")
+        except FileNotFoundError:
+            print("No existe el archivo puestos.txt, se creará al guardar.")
+
+    def guardar_puestos(self):
+        with open("puestos.txt", "w", encoding="utf-8") as archivo:
+            for p in self.diccionario_puestos_empleados.values():
+                archivo.write(f"{p.id_puesto}:{p.nombre_puesto}\n")
 
     def cargar_empleados(self):
         try:
@@ -543,6 +565,7 @@ class GestionEmpleados:
 
     def agregar_puesto_empleado(self, IDpuesto, nombre_puesto):
         self.diccionario_puestos_empleados[IDpuesto] = PuestosDeEmpleado(IDpuesto, nombre_puesto)
+        self.guardar_puestos()
         print("Puesto de empleado agregado con éxito... ")
 
     def agregar_empleado(self, IDempledo, nombre_empleado, IDpuesto, direccion_empleado, telefono_empleado, correo_empleado):
@@ -795,19 +818,27 @@ class GestionVentas:
             with open("ventas.txt", "r", encoding="utf-8") as archivo:
                 for linea in archivo:
                     linea = linea.strip()
-                    if linea:
-                        id_venta, id_empleado, nit_cliente, id_producto, cantidad, total, fecha = linea.split(":")
-                        self.diccionario_ventas[id_venta] = {
-                            "Empleado": id_empleado,
-                            "Cliente": nit_cliente,
-                            "Producto": id_producto,
-                            "Cantidad": int(cantidad),
-                            "Total": float(total),
-                            "Fecha": fecha
-                        }
+                    if not linea:
+                        continue
+                    partes = linea.split(":")
+
+                    # Validación: deben ser exactamente 7 campos
+                    if len(partes) != 7:
+                        print(f"Línea inválida en ventas.txt: {linea}")
+                        continue
+
+                    id_venta, id_empleado, nit_cliente, id_producto, cantidad, total, fecha = partes
+                    self.diccionario_ventas[id_venta] = {
+                        "Empleado": id_empleado,
+                        "Cliente": nit_cliente,
+                        "Producto": id_producto,
+                        "Cantidad": int(cantidad),
+                        "Total": float(total),
+                        "Fecha": fecha
+                    }
             print("Ventas importadas desde ventas.txt")
         except FileNotFoundError:
-            print("No existe el arhivo ventas.txt, se creara uno al guardar.")
+            print("No existe el archivo ventas.txt, se creará uno al guardar.")
 
     def guardar_detalles(self):
         with open("detalles_ventas.txt", "w", encoding="utf-8") as archivo:
@@ -825,10 +856,11 @@ class GestionVentas:
             nuevo_numero = numero + 1
             return f"D{nuevo_numero:04d}"
 
-    def guardar_venta(self):
+    def guardar_ventas(self):
         with open("ventas.txt", "w", encoding="utf-8") as archivo:
             for id_venta, datos in self.diccionario_ventas.items():
-                archivo.write(f"{id_venta}:{datos['Empleado']}:{datos['Cliente']}:{datos['Producto']}:{datos['Cantidad']}:{datos['Total']}:{datos['Fecha']}\n")
+                archivo.write(
+                    f"{id_venta}:{datos['Empleado']}:{datos['Cliente']}:{datos['Producto']}:{datos['Cantidad']}:{datos['Total']}:{datos['Fecha']}\n")
 
     def generar_id_venta(self):
         if not  self.diccionario_ventas:
@@ -859,7 +891,7 @@ class GestionVentas:
             return
         total = cantidad * producto.precio
         id_venta = self.generar_id_venta()
-        fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        fecha_actual = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         self.diccionario_ventas[id_venta] = {
             "Empleado": id_empleado,
             "Cliente": nit_cliente,
@@ -870,7 +902,7 @@ class GestionVentas:
         }
         producto.stock -= cantidad
         gestion_productos.guardar_productos()
-        self.guardar_venta()
+        self.guardar_ventas()
         id_detalle = self.generar_id_detalle()
         detalle = DetealleDeVentas(
             id_detalle=id_detalle,
