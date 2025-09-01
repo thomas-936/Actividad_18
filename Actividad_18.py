@@ -834,32 +834,31 @@ class GestionVentas:
             print(f"ERROR, el empleado no existe... ")
             return
         if nit_cliente not in gestion_clientes.diccionario_clientes:
-            print(f"El cliente con el Nit {nit_cliente} no existe vamos a registrarlo ahora: ")
+            print(f"El cliente con el Nit {nit_cliente} no existe, se registrará ahora:")
             nombre_cliente = input("Ingrese el nombre del cliente: ")
-            direccion_clinte = input("Ingrese la dirección del clinte: ")
-            telefono_cliente = input("Ingrese la direccion del cliente: ")
-            correo_clinte = input("Ingrese el núemero de teléfono del cliente: ")
+            direccion_cliente = input("Ingrese la dirección del cliente: ")
+            telefono_cliente = input("Ingrese el teléfono del cliente: ")
+            correo_cliente = input("Ingrese el correo del cliente: ")
             gestion_clientes.diccionario_clientes[nit_cliente] = {
                 "Nombre": nombre_cliente,
-                "Dierección" : direccion_clinte,
+                "Direccion": direccion_cliente,
                 "Telefono": telefono_cliente,
-                "Correo": correo_clinte
+                "Correo": correo_cliente
             }
             gestion_clientes.guardar_clientes()
-            print(f"Cliente {nombre_cliente} creado exirosamente ;)")
+            print(f"Cliente {nombre_cliente} creado exitosamente ;)")
         if id_producto not in gestion_productos.diccionario_productos:
-            print(f"ERROR, el producto {id_producto} no existe ")
+            print(f"ERROR, el producto {id_producto} no existe")
             return
         producto = gestion_productos.diccionario_productos[id_producto]
         if producto.stock < cantidad:
-            print("ERROR, no hay suficunte stock")
+            print("ERROR, no hay suficiente stock")
             return
         total = cantidad * producto.precio
         id_venta = self.generar_id_venta()
         fecha_actual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
         self.diccionario_ventas[id_venta] = {
-            "Emplaeado": id_empleado,
+            "Empleado": id_empleado,
             "Cliente": nit_cliente,
             "Producto": id_producto,
             "Cantidad": cantidad,
@@ -869,7 +868,56 @@ class GestionVentas:
         producto.stock -= cantidad
         gestion_productos.guardar_productos()
         self.guardar_venta()
-        print(f"Venta {id_venta} registrada con éxitoen {fecha_actual}. Total: Q{total}")
+        id_detalle = self.generar_id_detalle()
+        detalle = DetealleDeVentas(
+            id_detalle=id_detalle,
+            id_venta=id_venta,
+            id_producto=id_producto,
+            cantidad=cantidad,
+            subtotal=total,
+            stock_actual=producto.stock
+        )
+        self.diccionario_detalles_ventas[id_detalle] = detalle
+        self.guardar_detalles()
+        print(f"Venta {id_venta} registrada con éxito en {fecha_actual}. Total: Q{total}")
+        print(f"Detalle de venta {id_detalle} creado correctamente.")
+
+    def mostrar_todas_las_ventas(self):
+        if not  self.diccionario_ventas:
+            print("No hay ventas registradas")
+        else:
+            print("\n===LISTA DE TODAS LAS VENTAS===")
+            for id_venta, datos in self.diccionario_ventas.items():
+                print(f"\nVenta: {id_venta}")
+                print(f"  Empleado: {datos['Empleado']}")
+                print(f"  Cliente (NIT): {datos['Cliente']}")
+                print(f"  Producto: {datos['Producto']}")
+                print(f"  Cantidad: {datos['Cantidad']}")
+                print(f"  Total: Q{datos['Total']}")
+                print(f"  Fecha: {datos['Fecha']}")
+
+    def mostrar_ventas_por_categoria(self, categoria):
+        ventas_encontradas = False
+        print(f"\n=== VENTAS DE LA CATEGORÍA: {categoria} ===")
+        for id_venta, datos in self.diccionario_ventas.items():
+            id_producto = datos["Producto"]
+            if id_producto in gestion_productos.diccionario_productos:
+                producto = gestion_productos.diccionario_productos[id_producto]
+                if producto.categoria.lower() == categoria.lower():
+                    ventas_encontradas = True
+                    print(f"\nVenta: {id_venta}")
+                    print(f"  Empleado: {datos['Empleado']}")
+                    print(f"  Cliente (NIT): {datos['Cliente']}")
+                    print(f"  Producto: {producto.nombre} ({producto.id_producto})")
+                    print(f"  Cantidad: {datos['Cantidad']}")
+                    print(f"  Total: Q{datos['Total']}")
+                    print(f"  Fecha: {datos['Fecha']}")
+        if not ventas_encontradas:
+            print(f"No se encontraron ventas en la categoría '{categoria}'.")
+
+
+gestion_ventas = GestionVentas()
+
 
 class MenuGestionVentas:
     def pedir_entero(self, mensaje):
@@ -891,7 +939,17 @@ class MenuGestionVentas:
             opcion = self.pedir_entero("Ingrese su opción: ")
             match opcion:
                 case 1:
-                    pass
+                    id_empleado = input("Ingrese su ID: ")
+                    nit_cliente = input("Ingrese el Nit del cliente: ")
+                    id_producto = input("Ingrsae el ID del producto: ")
+                    cantidad = self.pedir_entero("Ingrese la cantidad a vender: ")
+
+                    gestion_ventas.crear_venta(id_empleado, nit_cliente, id_producto, cantidad)
+                case 2:
+                    gestion_ventas.mostrar_todas_las_ventas()
+                case 3:
+                    categoria = input("Ingrese la categoria que desea consultar: ")
+                    gestion_ventas.mostrar_ventas_por_categoria(categoria)
 
 
 
