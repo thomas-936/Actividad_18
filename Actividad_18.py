@@ -88,7 +88,9 @@ class GestionProductos:
             print(f"¿Seguro que quiere eliminar el producto {IDbuscado}?")
             while True:
                 try:
-                    confirmacion = int(input("Presione 1 para confirmar la eliminación\nPresione 2 para cancelar: "))
+                    print("1. Precione 1 para confirmar")
+                    print("2. Precione 2 para cancelar")
+                    confirmacion = int(input("Ingrese su Opción: "))
                 except ValueError:
                     print("Error: ingrese un número válido.")
                     continue
@@ -141,17 +143,20 @@ class GestionProveedores:
             with open("proveedores.txt", "r", encoding="utf-8") as archivo:
                 for linea in archivo:
                     linea = linea.strip()
-                    if not linea.strip(":"):
+                    if not linea:
                         continue
-                    nit_empresa, nombre_empresa, direccion_emrpresa, telefono_empresa, correo_emrpesa = linea.split(":")
-                    self.diccionario_proveedores[nit_empresa] = Proveedores(nit_empresa, nombre_empresa, direccion_emrpresa, telefono_empresa, correo_emrpesa)
+                    nit_empresa, nombre_empresa, direccion_empresa, telefono_empresa, correo_empresa = linea.split(":")
+                    self.diccionario_proveedores[nit_empresa] = Proveedores(
+                        nit_empresa, nombre_empresa, direccion_empresa, telefono_empresa, correo_empresa
+                    )
+            print("Proveedores cargados desde proveedores.txt")
         except FileNotFoundError:
-            print("No existe el archivo proveedodres.txt, se creará a guardar")
+            print("No existe el archivo proveedores.txt, se creará al guardar")
 
     def guardar_proveedores(self):
         with open("proveedores.txt", "w", encoding="utf-8") as archivo:
             for proveedores in self.diccionario_proveedores.values():
-                archivo.write(f"{proveedores.nit_empresa}:{proveedores.nombre_empresa}:{proveedores.direccion_empresa}:{proveedores.telefono_empresa}:{proveedores.correo_empresa}")
+                archivo.write(f"{proveedores.nit_empresa}:{proveedores.nombre_empresa}:{proveedores.direccion_empresa}:{proveedores.telefono_empresa}:{proveedores.correo_empresa}\n")
 
     def pedir_entero(self, mensaje):
         while True:
@@ -160,8 +165,8 @@ class GestionProveedores:
             except ValueError:
                 print("Ingrese un NUMERO valido... ")
 
-    def crar_proveedor(self, nit_empresa, nombre_empresa, direccion_empresa, telefono_emrpesa, correo_empresa):
-        self.diccionario_proveedores[nit_empresa] = Proveedores(nit_empresa, nombre_empresa, direccion_empresa, telefono_emrpesa, correo_empresa)
+    def crear_proveedor(self, nit_empresa, nombre_empresa, direccion_empresa, telefono_empresa, correo_empresa):
+        self.diccionario_proveedores[nit_empresa] = Proveedores(nit_empresa, nombre_empresa, direccion_empresa, telefono_empresa, correo_empresa)
         self.guardar_proveedores()
         print(f"El proveedor {nombre_empresa}, fue agregado y guardado correctamente... ")
 
@@ -175,17 +180,17 @@ class GestionProveedores:
     def modificar_datos_proveedor(self, nit_proveedor):
         if nit_proveedor in self.diccionario_proveedores:
             proveedor = self.diccionario_proveedores[nit_proveedor]
-            print(f"Cliente encontrado {proveedor.nombre_proveedor}")
+            print(f"Cliente encontrado {proveedor.nombre_empresa}")
             print("¿Que datos desea modificar?: ")
             print("1. Correo")
             print("2. Teléfono")
             opcion = self.pedir_entero("")
             if opcion == 1:
                 nuevo_correo = input("Ingrese el nuevo correo del proveedor: ")
-                proveedor.correo_emrpresa = nuevo_correo
-            if opcion == 2:
+                proveedor.correo_empresa = nuevo_correo
+            elif opcion == 2:
                 nuevo_telefono = input("Ingrese el nuevo teléfono del proveedor: ")
-                proveedor.telfono_empresa = nuevo_telefono
+                proveedor.telefono_empresa = nuevo_telefono
             else:
                 print("Opción invalida... ")
                 return
@@ -218,7 +223,7 @@ class GestionProveedores:
         mayores = [p for p in lista_proveedores[1:] if p.nombre_empresa.lower() > pivot.nombre_empresa.lower()]
         return self.quicksort_proveedores(menores) + [pivot] + self.quicksort_proveedores(mayores)
 
-    def mostar_proveedores_ordenados(self):
+    def mostrar_proveedores_ordenados(self):
         lista = list(self.diccionario_proveedores.values())
         ordenados = self.quicksort_proveedores(lista)
         print(f"Lista de proveedores ordenados por nombre: ")
@@ -238,7 +243,7 @@ class MenuGestionProveedores:
     def mostrar_menu_gestion_proveedores(self):
         opcion = 0
         while opcion != 6:
-            print("MENU GESTION PROVEEDORES")
+            print("+++MENU GESTION PROVEEDORES+++")
             print("1. Agregar proveedores")
             print("2. Mostrar provedores")
             print("3. Modificar proveedor")
@@ -250,7 +255,7 @@ class MenuGestionProveedores:
                 case 1:
                     cantidad = self.pedir_entero("¿Cuantos proveedores desea ingrasar?: ")
                     for i in range(cantidad):
-                        print(f"f\n Ingrese proveedor {i+1}: ")
+                        print(f"\n Ingrese proveedor {i+1}: ")
                         while True:
                             nit_proveedor = input("Ingrese el nit del proveedor: ")
                             if nit_proveedor in gestion_proveedores.diccionario_proveedores:
@@ -261,17 +266,19 @@ class MenuGestionProveedores:
                         direccion_proveedor = input("Ingrese la direección del proveedor: ")
                         tel_proveedor = input("Ingrese el teléfono del proveedor: ")
                         correo_proveedor = input("Ingrese el correo del proveedor: ")
-                        gestion_proveedores.crar_proveedor(nit_proveedor, nombre_proveedor, direccion_proveedor, tel_proveedor, correo_proveedor)
+                        gestion_proveedores.crear_proveedor(nit_proveedor, nombre_proveedor, direccion_proveedor, tel_proveedor, correo_proveedor)
                         print("Proveedor agregado con éxito...")
                 case 2:
-                    gestion_proveedores.mostar_proveedores_ordenados()
+                    gestion_proveedores.mostrar_proveedores_ordenados()
                 case 3:
                     print("+++MODIFICAR PROVEEDOR+++")
                     nit_proveedor_modifcar = input("Ingrese el Nit del proveedor: ")
                     gestion_proveedores.modificar_datos_proveedor(nit_proveedor_modifcar)
                 case 4:
-                    buco = input("Ingrese el Nit de la empresa que busca: ")
-                    gestion_proveedores.buscar_proveedor(buco)
+                    busco = input("Ingrese el Nit de la empresa que busca: ")
+                    proveedor = gestion_proveedores.buscar_proveedor(busco)
+                    if proveedor:
+                        print(f"Proveedor encontrado: {proveedor.nit_empresa} | {proveedor.nombre_empresa} | {proveedor.direccion_empresa} | {proveedor.telefono_empresa} | {proveedor.correo_empresa}")
                 case 5:
                     eliminar = input("Ingrese el Nit de la empresa que desaea aliminar: ")
                     gestion_proveedores.eliminar_proveedor(eliminar)
@@ -399,7 +406,7 @@ class MenuGestionDeClientes:
             print("3. Buscar clientes")
             print("4. Modificar clientes")
             print("5. Eliminar clientes")
-            print("6. Salir del menu")
+            print("6. Salir del menu gestión de clientes")
             opcion = self.pedir_entero("Ingrese su Opción: ")
             match opcion:
                 case 1:
@@ -419,7 +426,7 @@ class MenuGestionDeClientes:
                     if not gestion_clientes.diccionario_clientes:
                         print("No hay clientes registrados...")
                     else:
-                        print("----- LISTA DE CLIENTES ORDENADA -----")
+                        print("----- LISTA DE CLIENTES -----")
                         lista_clientes = list(gestion_clientes.diccionario_clientes.values())
                         lista_ordenada = gestion_clientes.quicksort_clientes(lista_clientes)
                         for c in lista_ordenada:
@@ -722,7 +729,7 @@ class MenuGestionProductos:
                     gestion_productos.eliminar_producto(eliminar_producto)
                 case 7:
                     modificar_id = input("Ingrese el ID del producto que desea modificar: ")
-                    nuevo_precio = float(input("Ingrese el nuevo precio: "))
+                    nuevo_precio = float(input("Ingrese el nuevo precio: Q"))
                     nuevo_stock = int(input("Ingrese el nuevo stock: "))
                     gestion_productos.modificar_producto(modificar_id, nuevo_precio, nuevo_stock)
                 case 8:
@@ -842,14 +849,7 @@ class GestionVentas:
             direccion_cliente = input("Ingrese la dirección del cliente: ")
             telefono_cliente = input("Ingrese el teléfono del cliente: ")
             correo_cliente = input("Ingrese el correo del cliente: ")
-            gestion_clientes.diccionario_clientes[nit_cliente] = {
-                "Nombre": nombre_cliente,
-                "Direccion": direccion_cliente,
-                "Telefono": telefono_cliente,
-                "Correo": correo_cliente
-            }
-            gestion_clientes.guardar_clientes()
-            print(f"Cliente {nombre_cliente} creado exitosamente ;)")
+            gestion_clientes.crear_cliente(nit_cliente, nombre_cliente, direccion_cliente, telefono_cliente, correo_cliente)
         if id_producto not in gestion_productos.diccionario_productos:
             print(f"ERROR, el producto {id_producto} no existe")
             return
@@ -906,7 +906,7 @@ class GestionVentas:
             id_producto = datos["Producto"]
             if id_producto in gestion_productos.diccionario_productos:
                 producto = gestion_productos.diccionario_productos[id_producto]
-                if producto.categoria.lower() == categoria.lower():
+                if producto.IDcategoria.lower() == categoria.lower():
                     ventas_encontradas = True
                     print(f"\nVenta: {id_venta}")
                     print(f"  Empleado: {datos['Empleado']}")
@@ -923,7 +923,6 @@ class GestionVentas:
         ventas_encontradas = False
         print(f"\n=== VENTAS DEL DÍA {fecha_hoy} ===")
         for id_venta, datos in self.diccionario_ventas.items():
-            # la fecha en ventas es "YYYY-MM-DD HH:MM:SS"
             if datos["Fecha"].startswith(fecha_hoy):
                 ventas_encontradas = True
                 print(f"\nVenta: {id_venta}")
@@ -951,8 +950,8 @@ class GestionVentas:
                 print(f"  Cantidad: {datos['Cantidad']}")
                 print(f"  Total: Q{datos['Total']}")
                 print(f"  Fecha: {datos['Fecha']}")
-            if not ventas_encontradas:
-                print("No se encontraron ventas con ese criterio.")
+        if not ventas_encontradas:
+            print("No se encontraron ventas con ese criterio.")
 
 gestion_ventas = GestionVentas()
 
